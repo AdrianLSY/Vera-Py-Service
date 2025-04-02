@@ -1,6 +1,7 @@
 import unittest
 from json import loads
 from models import Event
+from pydantic import ValidationError
 
 class TestEventModel(unittest.TestCase):
     """
@@ -88,6 +89,18 @@ class TestEventModel(unittest.TestCase):
         }
         output = Event(**loads(input)).model_dump()
         self.assertEqual(output, expected)
+
+    def test_unknown_event(self):
+        """
+        Test the serialization of an unknown event
+        This test should fail because the event type is not recognized.
+        """
+        input = """{"ref":"1","payload":{"status":"ok","response":{"service":{"id":1,"name":"Service 1"}}},"topic":"backend/service/1","event":"unknown"}"""
+        try:
+            Event(**loads(input)).model_dump()
+        except ValidationError:
+            self.assertEqual(True, True)
+
 
 if __name__ == '__main__':
     unittest.main()

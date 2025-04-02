@@ -13,7 +13,7 @@ class Service(BaseModel):
     name: str
 
 
-class Phx_reply_ok_response(BaseModel):
+class PhxReplyOkResponse(BaseModel):
     """
     Represents a successful reply response that contains service information.
 
@@ -23,7 +23,7 @@ class Phx_reply_ok_response(BaseModel):
     service: Service
 
 
-class Phx_reply_error_response(BaseModel):
+class PhxReplyErrorResponse(BaseModel):
     """
     Represents an error reply response with a reason for the error.
 
@@ -33,31 +33,31 @@ class Phx_reply_error_response(BaseModel):
     reason: str
 
 
-class Phx_reply_ok(BaseModel):
+class PhxReplyOk(BaseModel):
     """
     Represents a successful Phoenix reply event.
 
     Attributes:
         status (Literal["ok"]): A literal value "ok" indicating a successful response.
-        response (Phx_reply_ok_response): The successful reply payload.
+        response (PhxReplyOkResponse): The successful reply payload.
     """
     status: Literal["ok"]
-    response: Phx_reply_ok_response
+    response: PhxReplyOkResponse
 
 
-class Phx_reply_error(BaseModel):
+class PhxReplyError(BaseModel):
     """
     Represents an error Phoenix reply event.
 
     Attributes:
         status (Literal["error"]): A literal value "error" indicating an error response.
-        response (Phx_reply_error_response): The error reply payload containing the reason for the error.
+        response (PhxReplyErrorResponse): The error reply payload containing the reason for the error.
     """
     status: Literal["error"]
-    response: Phx_reply_error_response
+    response: PhxReplyErrorResponse
 
 
-class Service_updated_payload(BaseModel):
+class ServiceUpdatedPayload(BaseModel):
     """
     Represents the payload for a service update event.
 
@@ -67,7 +67,7 @@ class Service_updated_payload(BaseModel):
     service: Service
 
 
-class Service_deleted_payload(BaseModel):
+class ServiceDeletedPayload(BaseModel):
     """
     Represents the payload for a service deletion event.
 
@@ -77,7 +77,7 @@ class Service_deleted_payload(BaseModel):
     service: Service
 
 
-class Phx_join_payload(BaseModel):
+class PhxJoinPayload(BaseModel):
     """
     Represents the payload for a Phoenix join event.
 
@@ -87,7 +87,7 @@ class Phx_join_payload(BaseModel):
     pass
 
 
-class Phx_join_event(BaseModel):
+class PhxJoinEvent(BaseModel):
     """
     Represents a Phoenix join event.
 
@@ -95,15 +95,15 @@ class Phx_join_event(BaseModel):
         ref (Union[str, None]): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
         event (Literal["phx_join"]): A literal indicating the event type "phx_join".
-        payload (Phx_join_payload): The payload of the join event.
+        payload (PhxJoinPayload): The payload of the join event.
     """
     ref: Union[str, None]
     topic: str
     event: Literal["phx_join"]
-    payload: Phx_join_payload
+    payload: PhxJoinPayload
 
 
-class Phx_reply_event(BaseModel):
+class PhxReplyEvent(BaseModel):
     """
     Represents a Phoenix reply event that can either be a successful response or an error.
 
@@ -111,21 +111,21 @@ class Phx_reply_event(BaseModel):
         ref (Union[str, None]): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
         event (Literal["phx_reply"]): A literal indicating the event type "phx_reply".
-        payload (Union[Phx_reply_ok, Phx_reply_error]): The reply payload which is discriminated by the 'status' field.
+        payload (Union[PhxReplyOk, PhxReplyError]): The reply payload which is discriminated by the 'status' field.
     """
     ref: Union[str, None]
     topic: str
     event: Literal["phx_reply"]
     payload: Annotated[
         Union[
-            Phx_reply_ok,
-            Phx_reply_error
+            PhxReplyOk,
+            PhxReplyError
         ],
         Field(discriminator="status")
     ]
 
 
-class Service_updated_event(BaseModel):
+class ServiceUpdatedEvent(BaseModel):
     """
     Represents an event indicating that a service has been updated.
 
@@ -133,15 +133,15 @@ class Service_updated_event(BaseModel):
         ref (Union[str, None]): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
         event (Literal["service_updated"]): A literal indicating the event type "service_updated".
-        payload (Service_updated_payload): The payload containing updated service information.
+        payload (ServiceUpdatedPayload): The payload containing updated service information.
     """
     ref: Union[str, None]
     topic: str
     event: Literal["service_updated"]
-    payload: Service_updated_payload
+    payload: ServiceUpdatedPayload
 
 
-class Service_deleted_Event(BaseModel):
+class ServiceDeletedEvent(BaseModel):
     """
     Represents an event indicating that a service has been deleted.
 
@@ -149,22 +149,22 @@ class Service_deleted_Event(BaseModel):
         ref (Union[str, None]): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
         event (Literal["service_deleted"]): A literal indicating the event type "service_deleted".
-        payload (Service_deleted_payload): The payload containing the service information that was deleted.
+        payload (ServiceDeletedPayload): The payload containing the service information that was deleted.
     """
     ref: Union[str, None]
     topic: str
     event: Literal["service_deleted"]
-    payload: Service_deleted_payload
+    payload: ServiceDeletedPayload
 
 
 class Event(
     RootModel[
         Annotated[
             Union[
-                Phx_join_event,
-                Phx_reply_event,
-                Service_updated_event,
-                Service_deleted_Event
+                PhxJoinEvent,
+                PhxReplyEvent,
+                ServiceUpdatedEvent,
+                ServiceDeletedEvent
             ],
             Field(discriminator="event")
         ]
@@ -174,9 +174,9 @@ class Event(
     Represents a generic event that can be one of several types including join, reply, service updated, or service deleted events.
 
     The event type is discriminated by the "event" field, which determines the specific model to use:
-        - "phx_join" for Phx_join_event.
-        - "phx_reply" for Phx_reply_event.
-        - "service_updated" for Service_updated_event.
-        - "service_deleted" for Service_deleted_Event.
+        - "phx_join" for PhxJoinEvent.
+        - "phx_reply" for PhxReplyEvent.
+        - "service_updated" for ServiceUpdatedEvent.
+        - "service_deleted" for ServiceDeletedEvent.
     """
     pass
