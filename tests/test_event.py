@@ -19,8 +19,8 @@ class TestEventModel(unittest.TestCase):
                 }
             }
         }
-        actual = Event(**loads(input)).model_dump()
-        self.assertEqual(actual, expected)
+        output = Event(**loads(input)).model_dump()
+        self.assertEqual(output, expected)
 
     def test_phx_reply_error(self):
         input = """{"ref":"1","payload":{"status":"error","response":{"reason":"Service not found"}},"topic":"backend/service/1","event":"phx_reply"}"""
@@ -35,8 +35,8 @@ class TestEventModel(unittest.TestCase):
                 }
             }
         }
-        actual = Event(**loads(input)).model_dump()
-        self.assertEqual(actual, expected)
+        output = Event(**loads(input)).model_dump()
+        self.assertEqual(output, expected)
 
     def test_service_updated(self):
         input = """{"ref":null,"payload":{"service":{"id":1,"name":"Service 1"}},"topic":"backend/service/1","event":"service_updated"}"""
@@ -51,8 +51,8 @@ class TestEventModel(unittest.TestCase):
                 }
             }
         }
-        actual = Event(**loads(input)).model_dump()
-        self.assertEqual(actual, expected)
+        output = Event(**loads(input)).model_dump()
+        self.assertEqual(output, expected)
 
     def test_service_deleted(self):
         input = """{"ref":null,"payload":{"service":{"id":1,"name":"Service 1"}},"topic":"backend/service/1","event":"service_deleted"}"""
@@ -67,8 +67,8 @@ class TestEventModel(unittest.TestCase):
                 }
             }
         }
-        actual = Event(**loads(input)).model_dump()
-        self.assertEqual(actual, expected)
+        output = Event(**loads(input)).model_dump()
+        self.assertEqual(output, expected)
 
 if __name__ == '__main__':
     unittest.main()
