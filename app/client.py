@@ -3,7 +3,7 @@ from typing import Optional
 from json import dumps, loads, JSONDecodeError
 from pydantic import BaseModel, ValidationError
 from websockets import connect, ConnectionClosed
-from models import Service, Event, PhxJoinEvent, PhxReplyEvent, PhxReplyOk, PhxReplyError, ServiceUpdatedEvent, ServiceDeletedEvent
+from app.models import Service, Event, PhxJoinEvent, PhxReplyEvent, PhxReplyOk, PhxReplyError, ServiceUpdatedEvent, ServiceDeletedEvent
 
 class PlugboardClient(BaseModel):
     """
@@ -21,6 +21,7 @@ class PlugboardClient(BaseModel):
         __handle_service_deleted_event(event: ServiceDeletedEvent): Handles a service deleted event.
     """
     service: Optional[Service] = None
+    connected: bool = False
 
     async def connect(self, service_id: int) -> None:
         """
@@ -35,6 +36,7 @@ class PlugboardClient(BaseModel):
             ConnectionClosed: If the connection is closed.
         """
         async with connect("ws://localhost:4000/backend/websocket") as websocket:
+            self.connected = True
             await websocket.send(
                 dumps(
                     {
@@ -47,25 +49,26 @@ class PlugboardClient(BaseModel):
             )
             while True:
                 try:
+                    if not self.connected:
+                        await websocket.close()
+
                     event = Event(**loads(await websocket.recv()))
+
                     if isinstance(event.root, PhxJoinEvent):
                         self.__handle_phx_join_event(event.root)
-                        continue
-                    if isinstance(event.root, PhxReplyEvent):
+                    elif isinstance(event.root, PhxReplyEvent):
                         self.__handle_phx_reply_event(event.root)
-                        continue
-                    if isinstance(event.root, ServiceUpdatedEvent):
+                    elif isinstance(event.root, ServiceUpdatedEvent):
                         self.__handle_service_updated_event(event.root)
-                        continue
-                    if isinstance(event.root, ServiceDeletedEvent):
+                    elif isinstance(event.root, ServiceDeletedEvent):
                         self.__handle_service_deleted_event(event.root)
+                    else:
                         continue
                 except JSONDecodeError:
-                    print("Failed to decode JSON message.")
+                    pass
                 except ValidationError:
-                    print("Received invalid message.")
+                    pass
                 except ConnectionClosed:
-                    print("WebSocket connection closed.")
                     break
 
     def __handle_phx_join_event(self, event: PhxJoinEvent) -> None:
@@ -78,8 +81,6 @@ class PlugboardClient(BaseModel):
         Returns:
             None
         """
-        print("Join event received.")
-        print(event.model_dump_json(indent=4))
 
     def __handle_phx_reply_event(self, event: PhxReplyEvent) -> None:
         """
@@ -95,15 +96,12 @@ class PlugboardClient(BaseModel):
             self.service = event.response.service
 
         def handle_phx_reply_error(event: PhxReplyError) -> None:
-            print(f"Error: {event.response.reason}")
+            self.connected = False
 
         if isinstance(event.payload, PhxReplyOk):
             handle_phx_reply_ok(event.payload)
         else:
             handle_phx_reply_error(event.payload)
-
-        print("Reply event received.")
-        print(event.model_dump_json(indent=4))
 
     def __handle_service_updated_event(self, event: ServiceUpdatedEvent) -> None:
         """
@@ -116,8 +114,6 @@ class PlugboardClient(BaseModel):
             None
         """
         self.service = event.payload.service
-        print("Service updated event received.")
-        print(event.model_dump_json(indent=4))
 
     def __handle_service_deleted_event(self, event: ServiceDeletedEvent) -> None:
         """
@@ -130,10 +126,4 @@ class PlugboardClient(BaseModel):
             None
         """
         self.service = None
-        print("Service deleted event received.")
-        print(event.model_dump_json(indent=4))
-
-
-if __name__ == "__main__":
-    client = PlugboardClient()
-    run(client.connect(service_id=1))
+        self.connected = False
