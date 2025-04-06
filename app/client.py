@@ -2,7 +2,7 @@ from typing import Optional
 from json import dumps, loads, JSONDecodeError
 from pydantic import BaseModel, ValidationError
 from websockets import connect, ConnectionClosed
-from app.models import Service, Event, PhxJoinEvent, PhxReplyEvent, PhxReplyOk, PhxReplyError, ServiceUpdatedEvent, ServiceDeletedEvent
+from app.models import Service, Event, PhxJoinEvent, PhxReplyEvent, PhxReplyOk, PhxReplyError, ServiceUpdatedEvent, ServiceDeletedEvent, ClientsConnectedEvent
 
 class PlugboardClient(BaseModel):
     """
@@ -11,6 +11,8 @@ class PlugboardClient(BaseModel):
 
     Attributes:
         service (Optional[Service]): The service object associated with the client.
+        clients_connected (int): The number of clients connected to the service.
+        connected (bool): A flag indicating whether this client is connected to the service.
 
     Methods:
         connect(service_id: int): Connects to the Plugboard application and handles events.
@@ -20,6 +22,7 @@ class PlugboardClient(BaseModel):
         __handle_service_deleted_event(event: ServiceDeletedEvent): Handles a service deleted event.
     """
     service: Optional[Service] = None
+    clients_connected: int = 0
     connected: bool = False
 
     async def connect(self, service_id: int) -> None:
@@ -51,7 +54,9 @@ class PlugboardClient(BaseModel):
                     if not self.connected:
                         await websocket.close()
 
-                    event = Event(**loads(await websocket.recv()))
+                    message = loads(await websocket.recv())
+                    print(message)
+                    event = Event(**message)
 
                     if isinstance(event.root, PhxJoinEvent):
                         self.__handle_phx_join_event(event.root)
@@ -61,12 +66,15 @@ class PlugboardClient(BaseModel):
                         self.__handle_service_updated_event(event.root)
                     elif isinstance(event.root, ServiceDeletedEvent):
                         self.__handle_service_deleted_event(event.root)
+                    elif isinstance(event.root, ClientsConnectedEvent):
+                        self.__handle_clients_connected_event(event.root)
                     else:
-                        continue
+                        print(f"Unknown event")
+                        print(event.model_dump_json(indent = 4))
                 except JSONDecodeError:
-                    pass
+                    print(f"Invalid JSON")
                 except ValidationError:
-                    pass
+                    print(f"Invalid event")
                 except ConnectionClosed:
                     break
 
@@ -80,6 +88,8 @@ class PlugboardClient(BaseModel):
         Returns:
             None
         """
+        print("PHX join event:")
+        print(event.model_dump_json(indent = 4))
 
     def __handle_phx_reply_event(self, event: PhxReplyEvent) -> None:
         """
@@ -93,9 +103,14 @@ class PlugboardClient(BaseModel):
         """
         def handle_phx_reply_ok(event: PhxReplyOk) -> None:
             self.service = event.response.service
+            self.clients_connected = event.response.clients_connected
+            print("PHX reply ok event:")
+            print(event.model_dump_json(indent = 4))
 
         def handle_phx_reply_error(event: PhxReplyError) -> None:
             self.connected = False
+            print("PHX reply error event:")
+            print(event.model_dump_json(indent = 4))
 
         if isinstance(event.payload, PhxReplyOk):
             handle_phx_reply_ok(event.payload)
@@ -113,6 +128,8 @@ class PlugboardClient(BaseModel):
             None
         """
         self.service = event.payload.service
+        print("Service updated event:")
+        print(event.model_dump_json(indent = 4))
 
     def __handle_service_deleted_event(self, event: ServiceDeletedEvent) -> None:
         """
@@ -126,3 +143,19 @@ class PlugboardClient(BaseModel):
         """
         self.service = None
         self.connected = False
+        print("Service deleted event:")
+        print(event.model_dump_json(indent = 4))
+
+    def __handle_clients_connected_event(self, event: ClientsConnectedEvent) -> None:
+        """
+        Handles a clients connected event.
+
+        Args:
+            event (ClientsConnectedEvent): The clients connected event to handle.
+
+        Returns:
+            None
+        """
+        self.clients_connected = event.payload.clients_connected
+        print("Clients connected event:")
+        print(event.model_dump_json(indent = 4))

@@ -19,8 +19,10 @@ class PhxReplyOkResponse(BaseModel):
 
     Attributes:
         service (Service): The service information included in the response.
+        clients_connected (int): The number of clients connected to the service.
     """
     service: Service
+    clients_connected: int
 
 
 class PhxReplyErrorResponse(BaseModel):
@@ -75,6 +77,16 @@ class ServiceDeletedPayload(BaseModel):
         service (Service): The service information that was deleted.
     """
     service: Service
+
+
+class ClientsConnectedPayload(BaseModel):
+    """
+    Represents the payload for a clients connected event.
+
+    Attributes:
+        clients_connected (int): The number of clients connected to the service.
+    """
+    clients_connected: int
 
 
 class PhxJoinPayload(BaseModel):
@@ -157,6 +169,13 @@ class ServiceDeletedEvent(BaseModel):
     payload: ServiceDeletedPayload
 
 
+class ClientsConnectedEvent(BaseModel):
+    ref: Union[str, None]
+    topic: str
+    event: Literal["clients_connected"]
+    payload: ClientsConnectedPayload
+
+
 class Event(
     RootModel[
         Annotated[
@@ -164,9 +183,10 @@ class Event(
                 PhxJoinEvent,
                 PhxReplyEvent,
                 ServiceUpdatedEvent,
-                ServiceDeletedEvent
+                ServiceDeletedEvent,
+                ClientsConnectedEvent
             ],
-            Field(discriminator="event")
+            Field(discriminator = "event")
         ]
     ]
 ):
