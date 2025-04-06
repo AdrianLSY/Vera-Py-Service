@@ -1,5 +1,5 @@
-from typing import Annotated, Literal, Union
 from pydantic import RootModel, BaseModel, Field
+from typing import Annotated, Literal, Optional, Union
 
 class Service(BaseModel):
     """
@@ -11,82 +11,6 @@ class Service(BaseModel):
     """
     id: int
     name: str
-
-
-class PhxReplyOkResponse(BaseModel):
-    """
-    Represents a successful reply response that contains service information.
-
-    Attributes:
-        service (Service): The service information included in the response.
-        clients_connected (int): The number of clients connected to the service.
-    """
-    service: Service
-    clients_connected: int
-
-
-class PhxReplyErrorResponse(BaseModel):
-    """
-    Represents an error reply response with a reason for the error.
-
-    Attributes:
-        reason (str): The reason for the error.
-    """
-    reason: str
-
-
-class PhxReplyOk(BaseModel):
-    """
-    Represents a successful Phoenix reply event.
-
-    Attributes:
-        status (Literal["ok"]): A literal value "ok" indicating a successful response.
-        response (PhxReplyOkResponse): The successful reply payload.
-    """
-    status: Literal["ok"]
-    response: PhxReplyOkResponse
-
-
-class PhxReplyError(BaseModel):
-    """
-    Represents an error Phoenix reply event.
-
-    Attributes:
-        status (Literal["error"]): A literal value "error" indicating an error response.
-        response (PhxReplyErrorResponse): The error reply payload containing the reason for the error.
-    """
-    status: Literal["error"]
-    response: PhxReplyErrorResponse
-
-
-class ServiceUpdatedPayload(BaseModel):
-    """
-    Represents the payload for a service update event.
-
-    Attributes:
-        service (Service): The updated service information.
-    """
-    service: Service
-
-
-class ServiceDeletedPayload(BaseModel):
-    """
-    Represents the payload for a service deletion event.
-
-    Attributes:
-        service (Service): The service information that was deleted.
-    """
-    service: Service
-
-
-class ClientsConnectedPayload(BaseModel):
-    """
-    Represents the payload for a clients connected event.
-
-    Attributes:
-        clients_connected (int): The number of clients connected to the service.
-    """
-    clients_connected: int
 
 
 class PhxJoinPayload(BaseModel):
@@ -115,6 +39,52 @@ class PhxJoinEvent(BaseModel):
     payload: PhxJoinPayload
 
 
+class PhxReplyOkResponse(BaseModel):
+    """
+    Represents a successful reply response that contains service information.
+
+    Attributes:
+        service (Service): The service information included in the response.
+        clients_connected (int): The number of clients connected to the service.
+    """
+    service: Service
+    clients_connected: int
+
+
+class PhxReplyOk(BaseModel):
+    """
+    Represents a successful Phoenix reply event.
+
+    Attributes:
+        status (Literal["ok"]): A literal value "ok" indicating a successful response.
+        response (PhxReplyOkResponse): The successful reply payload.
+    """
+    status: Literal["ok"]
+    response: PhxReplyOkResponse
+
+
+class PhxReplyErrorResponse(BaseModel):
+    """
+    Represents an error reply response with a reason for the error.
+
+    Attributes:
+        reason (str): The reason for the error.
+    """
+    reason: str
+
+
+class PhxReplyError(BaseModel):
+    """
+    Represents an error Phoenix reply event.
+
+    Attributes:
+        status (Literal["error"]): A literal value "error" indicating an error response.
+        response (PhxReplyErrorResponse): The error reply payload containing the reason for the error.
+    """
+    status: Literal["error"]
+    response: PhxReplyErrorResponse
+
+
 class PhxReplyEvent(BaseModel):
     """
     Represents a Phoenix reply event that can either be a successful response or an error.
@@ -137,6 +107,16 @@ class PhxReplyEvent(BaseModel):
     ]
 
 
+class ServiceUpdatedPayload(BaseModel):
+    """
+    Represents the payload for a service update event.
+
+    Attributes:
+        service (Service): The updated service information.
+    """
+    service: Service
+
+
 class ServiceUpdatedEvent(BaseModel):
     """
     Represents an event indicating that a service has been updated.
@@ -151,6 +131,16 @@ class ServiceUpdatedEvent(BaseModel):
     topic: str
     event: Literal["service_updated"]
     payload: ServiceUpdatedPayload
+
+
+class ServiceDeletedPayload(BaseModel):
+    """
+    Represents the payload for a service deletion event.
+
+    Attributes:
+        service (Service): The service information that was deleted.
+    """
+    service: Service
 
 
 class ServiceDeletedEvent(BaseModel):
@@ -169,11 +159,61 @@ class ServiceDeletedEvent(BaseModel):
     payload: ServiceDeletedPayload
 
 
+class ClientsConnectedPayload(BaseModel):
+    """
+    Represents the payload for a clients connected event.
+
+    Attributes:
+        clients_connected (int): The number of clients connected to the service.
+    """
+    clients_connected: int
+
+
 class ClientsConnectedEvent(BaseModel):
+    """
+    Represents an event indicating that the number of clients connected to the service has changed.
+
+    Attributes:
+        ref (Union[str, None]): A reference identifier for the event.
+        topic (str): The topic to which the event is associated.
+        event (Literal["clients_connected"]): A literal indicating the event type "clients_connected".
+        payload (ClientsConnectedPayload): The payload containing the number of clients connected to the service.
+    """
     ref: Union[str, None]
     topic: str
     event: Literal["clients_connected"]
     payload: ClientsConnectedPayload
+
+
+class RequestPayload(BaseModel):
+    """
+    Represents the payload for a request event.
+
+    Attributes:
+        model (str): The model name of the request.
+        body (dict): The body of the request.
+        metadata (Optional[dict]): Optional metadata associated with the request.
+    """
+    model: str
+    body: dict
+    metadata: Optional[dict] = {}
+
+
+
+class RequestEvent(BaseModel):
+    """
+    Represents a request event that can be either a join or reply event.
+
+    Attributes:
+        ref (Union[str, None]): A reference identifier for the event.
+        topic (str): The topic to which the event is associated.
+        event (Literal["request"]): A literal indicating the event type "request".
+        payload (RequestPayload): The payload containing the request information.
+    """
+    ref: Union[str, None]
+    topic: str
+    event: Literal["request"]
+    payload: RequestPayload
 
 
 class Event(
@@ -184,7 +224,8 @@ class Event(
                 PhxReplyEvent,
                 ServiceUpdatedEvent,
                 ServiceDeletedEvent,
-                ClientsConnectedEvent
+                ClientsConnectedEvent,
+                RequestEvent
             ],
             Field(discriminator = "event")
         ]

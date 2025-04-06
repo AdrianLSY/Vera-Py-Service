@@ -2,7 +2,7 @@ from typing import Optional
 from json import dumps, loads, JSONDecodeError
 from pydantic import BaseModel, ValidationError
 from websockets import connect, ConnectionClosed
-from app.models import Service, Event, PhxJoinEvent, PhxReplyEvent, PhxReplyOk, PhxReplyError, ServiceUpdatedEvent, ServiceDeletedEvent, ClientsConnectedEvent
+from app.models import Service, Event, PhxJoinEvent, PhxReplyEvent, PhxReplyOk, PhxReplyError, ServiceUpdatedEvent, ServiceDeletedEvent, ClientsConnectedEvent, RequestEvent
 
 class PlugboardClient(BaseModel):
     """
@@ -68,6 +68,8 @@ class PlugboardClient(BaseModel):
                         self.__handle_service_deleted_event(event.root)
                     elif isinstance(event.root, ClientsConnectedEvent):
                         self.__handle_clients_connected_event(event.root)
+                    elif isinstance(event.root, RequestEvent):
+                        self.__handle_request_event(event.root)
                     else:
                         print(f"Unknown event")
                         print(event.model_dump_json(indent = 4))
@@ -158,4 +160,17 @@ class PlugboardClient(BaseModel):
         """
         self.clients_connected = event.payload.clients_connected
         print("Clients connected event:")
+        print(event.model_dump_json(indent = 4))
+
+    def __handle_request_event(self, event: RequestEvent) -> None:
+        """
+        Handles a request event.
+
+        Args:
+            event (RequestEvent): The request event to handle.
+
+        Returns:
+            None
+        """
+        print("Request event:")
         print(event.model_dump_json(indent = 4))

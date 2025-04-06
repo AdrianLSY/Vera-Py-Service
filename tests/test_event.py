@@ -108,6 +108,34 @@ class TestEventModel(unittest.TestCase):
         output = Event(**loads(input)).model_dump()
         self.assertEqual(output, expected)
 
+    def test_request(self):
+        """
+        Test the serialization of a request event
+        request is an event that contains a request.
+        """
+        input = """{"ref":"1","payload":{"model":"service","body":{"foo":"bar","hello":"world","1":2,"true":false,"null":null},"metadata":{"test":true,"debug":false}},"topic":"backend/service/1","event":"request"}"""
+        expected = {
+            "ref": "1",
+            "topic": "backend/service/1",
+            "event": "request",
+            "payload": {
+                "model": "service",
+                "body": {
+                    "foo": "bar",
+                    "hello": "world",
+                    "1": 2,
+                    "true": False,
+                    "null": None,
+                },
+                "metadata": {
+                    "test": True,
+                    "debug": False
+                }
+            }
+        }
+        output = Event(**loads(input)).model_dump()
+        self.assertEqual(output, expected)
+
     def test_unknown_event(self):
         """
         Test the serialization of an unknown event
