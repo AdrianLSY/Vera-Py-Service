@@ -179,7 +179,7 @@ class PlugboardClient(BaseModel):
         await websocket.send(
             dumps(
                 {
-                    "topic": f"backend/service/{self.service.id}",
+                    "topic": event.topic,
                     "event": "response",
                     "payload": event.payload.body,
                     "ref": event.payload.response_ref
