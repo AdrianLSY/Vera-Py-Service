@@ -113,23 +113,19 @@ class TestEventModel(unittest.TestCase):
         Test the serialization of a request event
         request is an event that contains a request.
         """
-        input = """{"ref":"1","payload":{"model":"service","body":{"foo":"bar","hello":"world","1":2,"true":false,"null":null},"metadata":{"test":true,"debug":false}},"topic":"backend/service/1","event":"request"}"""
+        input = """{"ref":"1","payload":{"response_ref":"1","body":{"foo":"bar","hello":"world","1":2,"true":false,"null":null}},"topic":"backend/service/1","event":"request"}"""
         expected = {
             "ref": "1",
             "topic": "backend/service/1",
             "event": "request",
             "payload": {
-                "model": "service",
+                "response_ref": "1",
                 "body": {
                     "foo": "bar",
                     "hello": "world",
                     "1": 2,
                     "true": False,
                     "null": None,
-                },
-                "metadata": {
-                    "test": True,
-                    "debug": False
                 }
             }
         }
