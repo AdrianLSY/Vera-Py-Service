@@ -1,5 +1,5 @@
 from pydantic import RootModel, BaseModel, Field
-from typing import Annotated, Literal, Optional, Union
+from typing import Annotated, Any, Literal, Optional, Union
 
 class Service(BaseModel):
     """
@@ -103,7 +103,7 @@ class PhxReplyEvent(BaseModel):
             PhxReplyOk,
             PhxReplyError
         ],
-        Field(discriminator="status")
+        Field(discriminator = "status")
     ]
 
 
@@ -190,14 +190,11 @@ class RequestPayload(BaseModel):
     Represents the payload for a request event.
 
     Attributes:
-        model (str): The model name of the request.
-        body (dict): The body of the request.
-        metadata (Optional[dict]): Optional metadata associated with the request.
+        body (Any): The body of the request.
+        response_ref (Optional[str]): The reference to send a response for the request.
     """
-    model: str
-    body: dict
-    metadata: Optional[dict] = {}
-
+    body: Any
+    response_ref: Optional[str] = None
 
 
 class RequestEvent(BaseModel):

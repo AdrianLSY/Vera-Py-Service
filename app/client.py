@@ -1,7 +1,7 @@
 from typing import Optional
 from json import dumps, loads, JSONDecodeError
 from pydantic import BaseModel, ValidationError
-from websockets import connect, ConnectionClosed
+from websockets import connect, ClientConnection, ConnectionClosed
 from app.models import Service, Event, PhxJoinEvent, PhxReplyEvent, PhxReplyOk, PhxReplyError, ServiceUpdatedEvent, ServiceDeletedEvent, ClientsConnectedEvent, RequestEvent
 
 class PlugboardClient(BaseModel):
@@ -59,17 +59,17 @@ class PlugboardClient(BaseModel):
                     event = Event(**message)
 
                     if isinstance(event.root, PhxJoinEvent):
-                        self.__handle_phx_join_event(event.root)
+                        await self.__handle_phx_join_event(event.root, websocket)
                     elif isinstance(event.root, PhxReplyEvent):
-                        self.__handle_phx_reply_event(event.root)
+                        await self.__handle_phx_reply_event(event.root, websocket)
                     elif isinstance(event.root, ServiceUpdatedEvent):
-                        self.__handle_service_updated_event(event.root)
+                        await self.__handle_service_updated_event(event.root, websocket)
                     elif isinstance(event.root, ServiceDeletedEvent):
-                        self.__handle_service_deleted_event(event.root)
+                        await self.__handle_service_deleted_event(event.root, websocket)
                     elif isinstance(event.root, ClientsConnectedEvent):
-                        self.__handle_clients_connected_event(event.root)
+                        await self.__handle_clients_connected_event(event.root, websocket)
                     elif isinstance(event.root, RequestEvent):
-                        self.__handle_request_event(event.root)
+                        await self.__handle_request_event(event.root, websocket)
                     else:
                         print(f"Unknown event")
                         print(event.model_dump_json(indent = 4))
@@ -80,7 +80,7 @@ class PlugboardClient(BaseModel):
                 except ConnectionClosed:
                     break
 
-    def __handle_phx_join_event(self, event: PhxJoinEvent) -> None:
+    async def __handle_phx_join_event(self, event: PhxJoinEvent, websocket: ClientConnection) -> None:
         """
         Handles a join event.
 
@@ -93,7 +93,7 @@ class PlugboardClient(BaseModel):
         print("PHX join event:")
         print(event.model_dump_json(indent = 4))
 
-    def __handle_phx_reply_event(self, event: PhxReplyEvent) -> None:
+    async def __handle_phx_reply_event(self, event: PhxReplyEvent, websocket: ClientConnection) -> None:
         """
         Handles a reply event.
 
@@ -119,7 +119,7 @@ class PlugboardClient(BaseModel):
         else:
             handle_phx_reply_error(event.payload)
 
-    def __handle_service_updated_event(self, event: ServiceUpdatedEvent) -> None:
+    async def __handle_service_updated_event(self, event: ServiceUpdatedEvent, websocket: ClientConnection) -> None:
         """
         Handles a service updated event.
 
@@ -133,7 +133,7 @@ class PlugboardClient(BaseModel):
         print("Service updated event:")
         print(event.model_dump_json(indent = 4))
 
-    def __handle_service_deleted_event(self, event: ServiceDeletedEvent) -> None:
+    async def __handle_service_deleted_event(self, event: ServiceDeletedEvent, websocket: ClientConnection) -> None:
         """
         Handles a service deleted event.
 
@@ -148,7 +148,7 @@ class PlugboardClient(BaseModel):
         print("Service deleted event:")
         print(event.model_dump_json(indent = 4))
 
-    def __handle_clients_connected_event(self, event: ClientsConnectedEvent) -> None:
+    async def __handle_clients_connected_event(self, event: ClientsConnectedEvent, websocket: ClientConnection) -> None:
         """
         Handles a clients connected event.
 
@@ -162,7 +162,7 @@ class PlugboardClient(BaseModel):
         print("Clients connected event:")
         print(event.model_dump_json(indent = 4))
 
-    def __handle_request_event(self, event: RequestEvent) -> None:
+    async def __handle_request_event(self, event: RequestEvent, websocket: ClientConnection) -> None:
         """
         Handles a request event.
 
@@ -174,3 +174,15 @@ class PlugboardClient(BaseModel):
         """
         print("Request event:")
         print(event.model_dump_json(indent = 4))
+        if event.payload.response_ref is None:
+            return
+        await websocket.send(
+            dumps(
+                {
+                    "topic": f"backend/service/{self.service.id}",
+                    "event": "response",
+                    "payload": event.payload.body,
+                    "ref": event.payload.response_ref
+                }
+            )
+        )
