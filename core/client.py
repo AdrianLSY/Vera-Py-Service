@@ -25,19 +25,20 @@ class PlugboardClient(BaseModel):
     clients_connected: int = 0
     connected: bool = False
 
-    async def connect(self, service_id: int) -> None:
+    async def connect(self, websocket_url: str, service_id: str | int) -> None:
         """
         Connects to the Plugboard application and handles events.
 
         Args:
-            service_id (int): The ID of the service to connect to.
+            websocket_url (str): The URL of the websocket to connect to.
+            service_id (str | int): The ID of the service to connect to.
 
         Raises:
             JSONDecodeError: If the JSON message cannot be decoded.
             ValidationError: If the event is not recognized.
             ConnectionClosed: If the connection is closed.
         """
-        async with connect("ws://localhost:4000/backend/websocket") as websocket:
+        async with connect(websocket_url) as websocket:
             self.connected = True
             await websocket.send(
                 dumps(
