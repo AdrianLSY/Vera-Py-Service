@@ -236,5 +236,7 @@ class Event(
         - "phx_reply" for PhxReplyEvent.
         - "service_updated" for ServiceUpdatedEvent.
         - "service_deleted" for ServiceDeletedEvent.
+        - "clients_connected" for ClientsConnectedEvent.
+        - "request" for RequestEvent.
     """
     pass
