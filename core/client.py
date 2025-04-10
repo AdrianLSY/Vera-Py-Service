@@ -2,7 +2,7 @@ from typing import Optional
 from json import dumps, loads, JSONDecodeError
 from pydantic import BaseModel, ValidationError
 from websockets import connect, ClientConnection, ConnectionClosed
-from app.models import Service, Event, PhxJoinEvent, PhxReplyEvent, PhxReplyOk, PhxReplyError, ServiceUpdatedEvent, ServiceDeletedEvent, ClientsConnectedEvent, RequestEvent
+from core.models import Service, Event, PhxJoinEvent, PhxReplyEvent, PhxReplyOk, PhxReplyError, ServiceUpdatedEvent, ServiceDeletedEvent, ClientsConnectedEvent, RequestEvent
 
 class PlugboardClient(BaseModel):
     """

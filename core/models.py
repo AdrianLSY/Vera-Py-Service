@@ -17,8 +17,8 @@ class PhxJoinPayload(BaseModel):
     """
     Represents the payload for a Phoenix join event.
 
-    Note:
-        Currently, this model does not include any fields.
+    Attributes:
+        None: This model does not include any fields.
     """
     pass
 

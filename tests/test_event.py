@@ -1,6 +1,6 @@
 import unittest
 from json import loads
-from app.models import Event
+from core.models import Event
 from pydantic import ValidationError
 
 class TestEventModel(unittest.TestCase):
