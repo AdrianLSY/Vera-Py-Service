@@ -3,7 +3,7 @@ from json import loads
 from core.models import Event
 from pydantic import ValidationError
 
-class TestEventModel(unittest.TestCase):
+class TestEvent(unittest.TestCase):
     """
     Tests the serialization of the Event model from messages from the web socket
     """
