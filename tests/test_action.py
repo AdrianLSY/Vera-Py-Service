@@ -35,6 +35,20 @@ class Baz(Action):
         return f"{self.foo} {self.bar}"
 
 
+class FooBarBaz(Action):
+    foo: Foo = Field(description = "The Foo value")
+    bar: Bar = Field(description = "The Bar value")
+    baz: Baz = Field(description = "The Baz value")
+    hello: str = Field(description = "The hello value", default = "Hello")
+    world: str = Field(description = "The world value", default = "World")
+
+    def description(self) -> str:
+        return "This is a FooBarBaz test action"
+
+    def run(self) -> str:
+        return f"{self.foo.run()} {self.bar.run()} {self.baz.run()}"
+
+
 class TestAction(unittest.TestCase):
     def test_foo(self):
         foo = Foo()
@@ -71,6 +85,16 @@ class TestAction(unittest.TestCase):
         self.assertEqual(baz.run(), "Hello World")
         self.assertEqual(baz.description(), "This is a Baz test action")
         self.assertEqual(baz.model_json(), """{"Baz": {"description": "This is a Baz test action", "fields": {"foo": {"type": "string", "description": "The foo value", "default": null}, "bar": {"type": "string", "description": "The bar value", "default": null}}}}""")
+
+    def test_foo_bar_baz(self):
+        foobarbaz = FooBarBaz(
+            foo = Foo(foo = "Hello", bar = "World"),
+            bar = Bar(foo = "Hello", bar = "World"),
+            baz = Baz()
+        )
+        self.assertEqual(foobarbaz.run(), "Hello World Hello World None None")
+        self.assertEqual(foobarbaz.description(), "This is a FooBarBaz test action")
+        self.assertEqual(foobarbaz.model_json(), """{"FooBarBaz": {"description": "This is a FooBarBaz test action", "fields": {"foo": {"type": "Foo", "description": "This is a Foo test action", "fields": {"foo": {"type": "string", "description": "The foo value", "default": "Foo"}, "bar": {"type": "string", "description": "The bar value", "default": "Bar"}}}, "bar": {"type": "Bar", "description": "This is a Bar test action", "fields": {"foo": {"type": "string", "description": "The foo value"}, "bar": {"type": "string", "description": "The bar value"}}}, "baz": {"type": "Baz", "description": "This is a Baz test action", "fields": {"foo": {"type": "string", "description": "The foo value", "default": null}, "bar": {"type": "string", "description": "The bar value", "default": null}}}, "hello": {"type": "string", "description": "The hello value", "default": "Hello"}, "world": {"type": "string", "description": "The world value", "default": "World"}}}}""")
 
 
 if __name__ == '__main__':
