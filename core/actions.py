@@ -1,13 +1,11 @@
+from json import dumps, loads
 from pydantic import BaseModel
 from abc import ABC, abstractmethod
-from json import dumps, loads
 
 class ActionModel(BaseModel, ABC):
     """
     Base class for action models.
-
-    The ActionModel class is an abstract base class for action models. It provides a common interface for defining and
-    validating action models, as well as a method for generating a JSON schema for the action model.
+    The ActionModel is a base class for defining an action. It provides a common interface for defining actions and their respective fields.
 
     Subclasses of ActionModel must implement the description() and run() methods.
     """
@@ -73,14 +71,13 @@ class ActionModel(BaseModel, ABC):
         )
 
 
-class Action(ActionModel):
+class ActionRunner(ActionModel):
     """
-    Base class for action classes.
+    Base class for action runners.
+    The ActionRunner inherits from ActionModel and provides a common interface for for defining actions and their respective fields.
+    In addition, it provides a common interface for executing the action.
 
-    The Action class is an abstract base class for action classes. It provides a common interface for defining and
-    validating action classes, as well as a method for generating a JSON schema for the action class.
-
-    Subclasses of Action must implement the run() method.
+    Subclasses of ActionRunner must implement the run() and description() method.
     """
     @abstractmethod
     def run(self) -> any:
