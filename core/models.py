@@ -190,10 +190,12 @@ class RequestPayload(BaseModel):
     Represents the payload for a request event.
 
     Attributes:
-        body (Any): The body of the request.
+        action (str): The name of the action to run.
+        fields (dict): The fields to pass to the action.
         response_ref (Optional[str]): The reference to send a response for the request.
     """
-    body: Any
+    action: str
+    fields: dict
     response_ref: Optional[str] = None
 
 

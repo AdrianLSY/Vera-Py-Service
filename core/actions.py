@@ -1,6 +1,11 @@
+from os import listdir
+from os.path import dirname
 from json import dumps, loads
 from pydantic import BaseModel
+from typing import Any, Dict, Type
+from importlib import import_module
 from abc import ABC, abstractmethod
+from inspect import getmembers, isclass
 
 class ActionModel(BaseModel, ABC):
     """
@@ -9,6 +14,7 @@ class ActionModel(BaseModel, ABC):
 
     Subclasses of ActionModel must implement the description() and run() methods.
     """
+    @classmethod
     @abstractmethod
     def description(self) -> str:
         """
@@ -19,8 +25,9 @@ class ActionModel(BaseModel, ABC):
             str: The description of the action.
         """
         pass
-
-    def model_json(self, indent: int = None) -> str:
+    
+    @classmethod
+    def model_json(cls, indent: int = None) -> str:
         """
         Returns the model definition as a JSON schema.
 
@@ -30,44 +37,50 @@ class ActionModel(BaseModel, ABC):
         Returns:
             str: The JSON schema for the action model.
         """
-        schema = self.model_json_schema()
-        class_name = self.__class__.__name__
+        schema = cls.model_json_schema()
+        class_name = cls.__name__
         properties = schema.get('properties', {})
 
         fields = {}
         for field_name, field_schema in properties.items():
-            field_value = getattr(self, field_name)
-            if isinstance(field_value, ActionModel):
-                nested_fields = {}
-                nested_fields['type'] = field_value.__class__.__name__
-                nested_fields['description'] = field_value.description()
-                nested_fields['fields'] = next(
-                    iter(
-                        loads(
-                            field_value.model_json()
-                        ).values()
-                    )
-                )['fields']
-                fields[field_name] = nested_fields
-            else:
-                field_info = {
-                    key: value
-                    for key, value in {
-                        "type": field_schema.get('type'),
-                        "description": field_schema.get('description'),
-                        "default": field_schema.get('default') if 'default' in field_schema else None
-                    }.items()
-                    if key != 'default' or ('default' in field_schema)
-                }
-                fields[field_name] = field_info
+            field_type = field_schema.get('type')
+
+            # Handle nested ActionModel fields
+            if '$ref' in field_schema:
+                field_class = cls.model_fields[field_name].annotation
+                if issubclass(field_class, ActionModel):
+                    nested_fields = {}
+                    nested_fields['type'] = field_class.__name__
+                    nested_fields['description'] = field_class.description()
+                    nested_fields['fields'] = next(
+                        iter(
+                            loads(
+                                field_class.model_json()
+                            ).values()
+                        )
+                    )['fields']
+                    fields[field_name] = nested_fields
+                    continue
+                
+            field_info = {
+                key: value
+                for key, value in {
+                    "type": field_type,
+                    "description": field_schema.get('description'),
+                    "default": field_schema.get('default') if 'default' in field_schema else None
+                }.items()
+                if key != 'default' or ('default' in field_schema)
+            }
+            fields[field_name] = field_info
+
         return dumps(
             {
                 class_name: {
-                    "description": self.description(),
+                    "description": cls.description(),
                     "fields": fields
                 }
             },
-            indent = indent
+            indent=indent
         )
 
 
@@ -85,3 +98,48 @@ class ActionRunner(ActionModel):
         Execute the action. Must be implemented by subclasses.
         """
         pass
+
+
+class ActionRegistry:
+    """
+    A registry for ActionRunner classes.
+    The ActionRegistry provides a way to dynamically load all ActionRunner classes from the actions directory.
+
+    Methods:
+        load_actions(): Dynamically loads all ActionRunner classes from the actions directory.
+    """
+    
+    @staticmethod
+    def actions() -> Dict[str, Type[ActionRunner]]:
+        """
+        Dynamically loads all ActionRunner classes from the actions directory.
+        
+        Returns:
+            Dict[str, Type[ActionRunner]]: Dictionary mapping class names to ActionRunner classes
+        """
+        actions_dir = dirname(dirname(__file__)) + '/actions'
+        actions: Dict[str, Type[ActionRunner]] = {}
+
+        for filename in listdir(actions_dir):
+            if filename.endswith('.py') and filename != '__init__.py':
+                for name, obj in getmembers(import_module(f'actions.{filename[:-3]}')):
+                    if isclass(obj) and issubclass(obj, ActionRunner) and obj != ActionRunner:
+                        actions[name] = obj
+
+        return actions
+    
+    @staticmethod
+    def json(indent: int = None) -> str:
+        """
+        Returns a JSON string containing the JSON schemas for all ActionRunner classes.
+
+        Returns:
+            str: A JSON string containing the JSON schemas for all ActionRunner classes.
+        """
+        actions = ActionRegistry.actions()
+        schemas: Dict[str, Dict[str, Any]] = {}
+
+        for name, action in actions.items():
+            schemas[name] = loads(action.model_json())[name]
+
+        return dumps(schemas, indent = indent)

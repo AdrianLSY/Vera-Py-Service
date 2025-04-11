@@ -1,11 +1,12 @@
 import unittest
-from core.actions import Action
+from core.actions import ActionRunner
 from pydantic import Field, ValidationError
 
-class Foo(Action):
+class Foo(ActionRunner):
     foo: str = Field(description = "The foo value", default = "Foo")
     bar: str = Field(description = "The bar value", default = "Bar")
 
+    @classmethod
     def description(self) -> str:
         return "This is a Foo test action"
 
@@ -13,10 +14,11 @@ class Foo(Action):
         return f"{self.foo} {self.bar}"
 
 
-class Bar(Action):
+class Bar(ActionRunner):
     foo: str = Field(description = "The foo value")
     bar: str = Field(description = "The bar value")
 
+    @classmethod
     def description(self) -> str:
         return "This is a Bar test action"
 
@@ -24,10 +26,11 @@ class Bar(Action):
         return f"{self.foo} {self.bar}"
 
 
-class Baz(Action):
+class Baz(ActionRunner):
     foo: str = Field(description = "The foo value", default = None)
     bar: str = Field(description = "The bar value", default = None)
 
+    @classmethod
     def description(self) -> str:
         return "This is a Baz test action"
 
@@ -35,13 +38,14 @@ class Baz(Action):
         return f"{self.foo} {self.bar}"
 
 
-class FooBarBaz(Action):
+class FooBarBaz(ActionRunner):
     foo: Foo = Field(description = "The Foo value")
     bar: Bar = Field(description = "The Bar value")
     baz: Baz = Field(description = "The Baz value")
     hello: str = Field(description = "The hello value", default = "Hello")
     world: str = Field(description = "The world value", default = "World")
 
+    @classmethod
     def description(self) -> str:
         return "This is a FooBarBaz test action"
 
