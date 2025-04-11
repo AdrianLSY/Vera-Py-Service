@@ -47,8 +47,8 @@ class PlugboardClient(BaseModel):
                     {
                         "topic": f"service/{service_id}",
                         "event": "phx_join",
-                        "payload": {},
-                        "ref": "1"
+                        "payload": ActionRegistry.dict(),
+                        "ref": None
                     }
                 )
             )

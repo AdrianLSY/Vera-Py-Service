@@ -27,15 +27,12 @@ class ActionModel(BaseModel, ABC):
         pass
 
     @classmethod
-    def model_json(cls, indent: int = None) -> str:
+    def model_dict(cls) -> dict:
         """
-        Returns the model definition as a JSON schema.
-
-        Args:
-            indent (int, optional): The indentation level for the JSON schema. Defaults to None.
+        Returns the model definition as a dictionary.
 
         Returns:
-            str: The JSON schema for the action model.
+            dict: The model definition as a dictionary.
         """
         schema = cls.model_json_schema()
         class_name = cls.__name__
@@ -73,15 +70,25 @@ class ActionModel(BaseModel, ABC):
             }
             fields[field_name] = field_info
 
-        return dumps(
-            {
-                class_name: {
-                    "description": cls.description(),
-                    "fields": fields
-                }
-            },
-            indent=indent
-        )
+        return{
+            class_name: {
+                "description": cls.description(),
+                "fields": fields
+            }
+        }
+
+    @classmethod
+    def model_json(cls, indent: int = None) -> str:
+        """
+        Returns the model definition as a JSON schema.
+
+        Args:
+            indent (int, optional): The indentation level for the JSON schema. Defaults to None.
+
+        Returns:
+            str: The JSON schema for the action model.
+        """
+        return dumps(cls.model_dict(), indent = indent)
 
 
 class ActionRunner(ActionModel):
@@ -134,21 +141,34 @@ class ActionRegistry():
         return actions
 
     @staticmethod
-    def json(path: str = "actions", indent: int = None) -> str:
+    def dict(path: str = "actions") -> dict:
         """
-        Returns a JSON string containing the JSON schemas for all ActionRunner classes.
+        Returns a dictionary containing the dictionary schemas for all ActionRunner classes.
 
         Args:
-            path (str, optional): The path to the actions directory. Defaults to actions/.
-            indent (int, optional): The indentation level for the JSON schema. Defaults to None.
+            path (str, optional): The path to the actions directory. Defaults to actions.
 
         Returns:
-            str: A JSON string containing the JSON schemas for all ActionRunner classes.
+            str: A dictionary containing the dictionary schemas for all ActionRunner classes.
         """
         actions = ActionRegistry.actions(path)
         schemas: Dict[str, Dict[str, Any]] = {}
 
         for name, action in actions.items():
-            schemas[name] = loads(action.model_json())[name]
+            schemas[name] = action.model_dict()[name]
 
-        return dumps(schemas, indent = indent)
+        return schemas
+
+    @staticmethod
+    def json(path: str = "actions", indent: int = None) -> str:
+        """
+        Returns a JSON string containing the JSON schemas for all ActionRunner classes.
+
+        Args:
+            path (str, optional): The path to the actions directory. Defaults to actions.
+            indent (int, optional): The indentation level for the JSON schema. Defaults to None.
+
+        Returns:
+            str: A JSON string containing the JSON schemas for all ActionRunner classes.
+        """
+        return dumps(ActionRegistry.dict(path), indent = indent)
