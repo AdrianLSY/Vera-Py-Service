@@ -179,12 +179,25 @@ class PlugboardClient(BaseModel):
         print(event.model_dump_json(indent = 4))
         if event.payload.response_ref is None:
             return
+        response = {
+            "message": None,
+            "status": None
+        }
+        try:
+            response["message"] = actions[event.payload.action](**event.payload.fields).run()
+            response["status"] = "success"
+        except KeyError:
+            response["message"] = f"Unknown action: {event.payload.action}"
+            response["status"] = "error"
+        except Exception as error:
+            response["message"] = f"Error: {error}"
+            response["status"] = "error"
         await websocket.send(
             dumps(
                 {
                     "topic": event.topic,
                     "event": "response",
-                    "payload": actions[event.payload.action](**event.payload.fields).run(),
+                    "payload": response,
                     "ref": event.payload.response_ref
                 }
             )
