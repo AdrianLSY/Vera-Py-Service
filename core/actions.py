@@ -1,10 +1,10 @@
 from os import listdir
+from os.path import exists
 from json import dumps, loads
 from pydantic import BaseModel
 from typing import Any, Dict, Type
 from abc import ABC, abstractmethod
 from importlib import import_module
-from os.path import dirname, exists
 from inspect import getmembers, isclass
 
 class ActionModel(BaseModel, ABC):
@@ -100,7 +100,7 @@ class ActionRunner(ActionModel):
         pass
 
 
-class ActionRegistry:
+class ActionRegistry():
     """
     A registry for ActionRunner classes.
     The ActionRegistry provides a way to dynamically load all ActionRunner classes from the actions directory.

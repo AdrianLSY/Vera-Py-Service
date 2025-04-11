@@ -1,5 +1,5 @@
 from pydantic import RootModel, BaseModel, Field
-from typing import Annotated, Any, Literal, Optional, Union
+from typing import Annotated, Literal, Optional, Union
 
 class Service(BaseModel):
     """
