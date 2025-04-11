@@ -45,7 +45,7 @@ class PlugboardClient(BaseModel):
             await websocket.send(
                 dumps(
                     {
-                        "topic": f"backend/service/{service_id}",
+                        "topic": f"service/{service_id}",
                         "event": "phx_join",
                         "payload": {},
                         "ref": "1"
