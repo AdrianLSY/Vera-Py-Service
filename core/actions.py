@@ -1,10 +1,10 @@
 from os import listdir
-from os.path import dirname
 from json import dumps, loads
 from pydantic import BaseModel
 from typing import Any, Dict, Type
-from importlib import import_module
 from abc import ABC, abstractmethod
+from importlib import import_module
+from os.path import dirname, exists
 from inspect import getmembers, isclass
 
 class ActionModel(BaseModel, ABC):
@@ -25,7 +25,7 @@ class ActionModel(BaseModel, ABC):
             str: The description of the action.
         """
         pass
-    
+
     @classmethod
     def model_json(cls, indent: int = None) -> str:
         """
@@ -61,7 +61,7 @@ class ActionModel(BaseModel, ABC):
                     )['fields']
                     fields[field_name] = nested_fields
                     continue
-                
+
             field_info = {
                 key: value
                 for key, value in {
@@ -108,35 +108,44 @@ class ActionRegistry:
     Methods:
         load_actions(): Dynamically loads all ActionRunner classes from the actions directory.
     """
-    
+
     @staticmethod
-    def actions() -> Dict[str, Type[ActionRunner]]:
+    def actions(path: str = "actions") -> Dict[str, Type[ActionRunner]]:
         """
         Dynamically loads all ActionRunner classes from the actions directory.
-        
+
+        Args:
+            path (str, optional): The path to the actions directory. Defaults to actions.
+
         Returns:
             Dict[str, Type[ActionRunner]]: Dictionary mapping class names to ActionRunner classes
         """
-        actions_dir = dirname(dirname(__file__)) + '/actions'
+        if not exists(path):
+            return {}
         actions: Dict[str, Type[ActionRunner]] = {}
-
-        for filename in listdir(actions_dir):
+        for filename in listdir(path):
             if filename.endswith('.py') and filename != '__init__.py':
-                for name, obj in getmembers(import_module(f'actions.{filename[:-3]}')):
+                # Change this line to use the full module path
+                module_path = path.replace("/", ".").split(".")[-2:]
+                module_name = f"{'.'.join(module_path)}.{filename[:-3]}"
+                for name, obj in getmembers(import_module(module_name)):
                     if isclass(obj) and issubclass(obj, ActionRunner) and obj != ActionRunner:
                         actions[name] = obj
-
         return actions
-    
+
     @staticmethod
-    def json(indent: int = None) -> str:
+    def json(path: str = "actions", indent: int = None) -> str:
         """
         Returns a JSON string containing the JSON schemas for all ActionRunner classes.
+
+        Args:
+            path (str, optional): The path to the actions directory. Defaults to actions/.
+            indent (int, optional): The indentation level for the JSON schema. Defaults to None.
 
         Returns:
             str: A JSON string containing the JSON schemas for all ActionRunner classes.
         """
-        actions = ActionRegistry.actions()
+        actions = ActionRegistry.actions(path)
         schemas: Dict[str, Dict[str, Any]] = {}
 
         for name, action in actions.items():

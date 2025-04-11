@@ -1,5 +1,5 @@
 from pydantic import Field
-from core.actions import ActionRunner, ActionModel
+from core.actions import ActionModel, ActionRunner
 
 class Foo(ActionModel):
     foo: str = Field(description = "The foo value", default = "Foo")
@@ -26,7 +26,7 @@ class Baz(ActionModel):
     @classmethod
     def description(self) -> str:
         return "This is a Baz test action"
-    
+
 
 class FooBarBaz(ActionRunner):
     foo: Foo = Field(description = "The Foo value")
