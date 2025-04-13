@@ -12,7 +12,7 @@ class TestEvent(unittest.TestCase):
         Test the serialization of a phx_reply_ok event
         phx_reply_ok is a successful response from the server, and it contains a service object.
         """
-        input = """{"ref":"1","payload":{"status":"ok","response":{"service":{"id":1,"name":"Service 1"},"clients_connected":1}},"topic":"backend/service/1","event":"phx_reply"}"""
+        input = """{"ref":"1","payload":{"status":"ok","response":{"service":{"id":1,"name":"Service 1"},"consumers_connected":1}},"topic":"backend/service/1","event":"phx_reply"}"""
         expected = {
             "ref": "1",
             "topic": "backend/service/1",
@@ -24,7 +24,7 @@ class TestEvent(unittest.TestCase):
                         "id": 1,
                         "name": "Service 1"
                     },
-                    "clients_connected": 1
+                    "consumers_connected": 1
                 }
             }
         }
@@ -91,18 +91,18 @@ class TestEvent(unittest.TestCase):
         output = Event(**loads(input)).model_dump()
         self.assertEqual(output, expected)
 
-    def test_clients_connected(self):
+    def test_consumers_connected(self):
         """
-        Test the serialization of a clients_connected event
-        clients_connected is an event that indicates the number of clients connected to a service.
+        Test the serialization of a consumers_connected event
+        consumers_connected is an event that indicates the number of consumers connected to a service.
         """
-        input = """{"ref":null,"payload":{"clients_connected":1},"topic":"backend/service/1","event":"clients_connected"}"""
+        input = """{"ref":null,"payload":{"consumers_connected":1},"topic":"backend/service/1","event":"consumers_connected"}"""
         expected = {
             "ref": None,
             "topic": "backend/service/1",
-            "event": "clients_connected",
+            "event": "consumers_connected",
             "payload": {
-                "clients_connected": 1
+                "consumers_connected": 1
             }
         }
         output = Event(**loads(input)).model_dump()

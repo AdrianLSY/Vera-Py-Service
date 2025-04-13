@@ -45,10 +45,10 @@ class PhxReplyOkResponse(BaseModel):
 
     Attributes:
         service (Service): The service information included in the response.
-        clients_connected (int): The number of clients connected to the service.
+        consumers_connected (int): The number of clients connected to the service.
     """
     service: Service
-    clients_connected: int
+    consumers_connected: int
 
 
 class PhxReplyOk(BaseModel):
@@ -164,24 +164,24 @@ class ClientsConnectedPayload(BaseModel):
     Represents the payload for a clients connected event.
 
     Attributes:
-        clients_connected (int): The number of clients connected to the service.
+        consumers_connected (int): The number of clients connected to the service.
     """
-    clients_connected: int
+    consumers_connected: int
 
 
-class ClientsConnectedEvent(BaseModel):
+class ConsumersConnectedEvent(BaseModel):
     """
     Represents an event indicating that the number of clients connected to the service has changed.
 
     Attributes:
         ref (Union[str, None]): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
-        event (Literal["clients_connected"]): A literal indicating the event type "clients_connected".
+        event (Literal["consumers_connected"]): A literal indicating the event type "consumers_connected".
         payload (ClientsConnectedPayload): The payload containing the number of clients connected to the service.
     """
     ref: Union[str, None]
     topic: str
-    event: Literal["clients_connected"]
+    event: Literal["consumers_connected"]
     payload: ClientsConnectedPayload
 
 
@@ -223,7 +223,7 @@ class Event(
                 PhxReplyEvent,
                 ServiceUpdatedEvent,
                 ServiceDeletedEvent,
-                ClientsConnectedEvent,
+                ConsumersConnectedEvent,
                 RequestEvent
             ],
             Field(discriminator = "event")
@@ -238,7 +238,7 @@ class Event(
         - "phx_reply" for PhxReplyEvent.
         - "service_updated" for ServiceUpdatedEvent.
         - "service_deleted" for ServiceDeletedEvent.
-        - "clients_connected" for ClientsConnectedEvent.
+        - "consumers_connected" for ConsumersConnectedEvent.
         - "request" for RequestEvent.
     """
     pass
