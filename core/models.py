@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import RootModel, BaseModel, Field
 from typing import Annotated, Literal, Optional, Union
 
@@ -8,9 +9,34 @@ class Service(BaseModel):
     Attributes:
         id (int): The unique identifier for the service.
         name (str): The name of the service.
+        inserted_at (datetime): The date and time the service was inserted.
+        updated_at (datetime): The date and time the service was last updated.
     """
     id: int
     name: str
+    inserted_at: datetime
+    updated_at: datetime
+
+
+class Token(BaseModel):
+    """
+    Represents a token with a unique identifier, context, value, service id, and inserted and expiration date.
+    The token defaults to all None values. The Token fields will be set when the PlugboardClient is connected.
+
+    Attributes:
+        id (Optional[int]): The unique identifier for the token.
+        context (Optional[str]): The context for the token.
+        value (Optional[str]): The value for the token.
+        service_id (Optional[int]): The ID of the service associated with the token.
+        inserted_at (Optional[datetime]): The date and time the token was inserted.
+        expires_at (Optional[datetime]): The date and time the token expires.
+    """
+    id: Optional[int] = None
+    context: Optional[str] = None
+    value: Optional[str] = None
+    service_id: Optional[int] = None
+    inserted_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
 
 
 class PhxJoinPayload(BaseModel):
@@ -28,12 +54,12 @@ class PhxJoinEvent(BaseModel):
     Represents a Phoenix join event.
 
     Attributes:
-        ref (Union[str, None]): A reference identifier for the event.
+        ref (Optional[str]): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
         event (Literal["phx_join"]): A literal indicating the event type "phx_join".
         payload (PhxJoinPayload): The payload of the join event.
     """
-    ref: Union[str, None]
+    ref: Optional[str] = None
     topic: str
     event: Literal["phx_join"]
     payload: PhxJoinPayload
@@ -48,6 +74,7 @@ class PhxReplyOkResponse(BaseModel):
         consumers_connected (int): The number of clients connected to the service.
     """
     service: Service
+    token: Token
     consumers_connected: int
 
 
@@ -90,12 +117,12 @@ class PhxReplyEvent(BaseModel):
     Represents a Phoenix reply event that can either be a successful response or an error.
 
     Attributes:
-        ref (Union[str, None]): A reference identifier for the event.
+        ref (Optional[str]): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
         event (Literal["phx_reply"]): A literal indicating the event type "phx_reply".
         payload (Union[PhxReplyOk, PhxReplyError]): The reply payload which is discriminated by the 'status' field.
     """
-    ref: Union[str, None]
+    ref: Optional[str] = None
     topic: str
     event: Literal["phx_reply"]
     payload: Annotated[
@@ -122,12 +149,12 @@ class ServiceUpdatedEvent(BaseModel):
     Represents an event indicating that a service has been updated.
 
     Attributes:
-        ref (Union[str, None]): A reference identifier for the event.
+        ref (Optional[str]): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
         event (Literal["service_updated"]): A literal indicating the event type "service_updated".
         payload (ServiceUpdatedPayload): The payload containing updated service information.
     """
-    ref: Union[str, None]
+    ref: Optional[str] = None
     topic: str
     event: Literal["service_updated"]
     payload: ServiceUpdatedPayload
@@ -148,12 +175,12 @@ class ServiceDeletedEvent(BaseModel):
     Represents an event indicating that a service has been deleted.
 
     Attributes:
-        ref (Union[str, None]): A reference identifier for the event.
+        ref (Optional[str]): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
         event (Literal["service_deleted"]): A literal indicating the event type "service_deleted".
         payload (ServiceDeletedPayload): The payload containing the service information that was deleted.
     """
-    ref: Union[str, None]
+    ref: Optional[str] = None
     topic: str
     event: Literal["service_deleted"]
     payload: ServiceDeletedPayload
@@ -174,12 +201,12 @@ class ConsumersConnectedEvent(BaseModel):
     Represents an event indicating that the number of clients connected to the service has changed.
 
     Attributes:
-        ref (Union[str, None]): A reference identifier for the event.
+        ref (Optional[str]): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
         event (Literal["consumers_connected"]): A literal indicating the event type "consumers_connected".
         payload (ClientsConnectedPayload): The payload containing the number of clients connected to the service.
     """
-    ref: Union[str, None]
+    ref: Optional[str] = None
     topic: str
     event: Literal["consumers_connected"]
     payload: ClientsConnectedPayload
@@ -204,15 +231,57 @@ class RequestEvent(BaseModel):
     Represents a request event that can be either a join or reply event.
 
     Attributes:
-        ref (Union[str, None]): A reference identifier for the event.
+        ref (Optional[str]): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
         event (Literal["request"]): A literal indicating the event type "request".
         payload (RequestPayload): The payload containing the request information.
     """
-    ref: Union[str, None]
+    ref: Optional[str] = None
     topic: str
     event: Literal["request"]
     payload: RequestPayload
+
+
+class TokenPayload(BaseModel):
+    """
+    Represents the payload for a token event.
+
+    Attributes:
+        token (Token): The token information.
+    """
+    token: Token
+
+
+class TokenCreatedEvent(BaseModel):
+    """
+    Represents an event indicating that a token has been created.
+
+    Attributes:
+        ref (Optional[str]): A reference identifier for the event.
+        topic (str): The topic to which the event is associated.
+        event (Literal["token_created"]): A literal indicating the event type "token_created".
+        payload (TokenPayload): The payload containing the token information.
+    """
+    ref: Optional[str] = None
+    topic: str
+    event: Literal["token_created"]
+    payload: TokenPayload
+
+
+class TokenDeletedEvent(BaseModel):
+    """
+    Represents an event indicating that a token has been deleted.
+
+    Attributes:
+        ref (Optional[str]): A reference identifier for the event.
+        topic (str): The topic to which the event is associated.
+        event (Literal["token_deleted"]): A literal indicating the event type "token_deleted".
+        payload (TokenPayload): The payload containing the token information.
+    """
+    ref: Optional[str] = None
+    topic: str
+    event: Literal["token_deleted"]
+    payload: TokenPayload
 
 
 class Event(
@@ -224,7 +293,9 @@ class Event(
                 ServiceUpdatedEvent,
                 ServiceDeletedEvent,
                 ConsumersConnectedEvent,
-                RequestEvent
+                RequestEvent,
+                TokenCreatedEvent,
+                TokenDeletedEvent,
             ],
             Field(discriminator = "event")
         ]
