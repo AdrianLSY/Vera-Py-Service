@@ -208,8 +208,11 @@ class PlugboardClient(BaseModel):
         except KeyError:
             response["message"] = f"Unknown action: {event.payload.action}"
             response["status"] = "error"
+        except ValidationError:
+            response["message"] = f"Mallformed action fields"
+            response["status"] = "error"
         except Exception as error:
-            response["message"] = f"Error: {error}"
+            response["message"] = error
             response["status"] = "error"
         await websocket.send(
             dumps(
