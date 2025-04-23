@@ -12,7 +12,7 @@ class TestEvent(unittest.TestCase):
         Test the serialization of a phx_reply_ok event
         phx_reply_ok is a successful response from the server, and it contains a service object.
         """
-        input = """{"ref":"1","payload":{"status":"ok","response":{"service":{"id":1,"name":"Service 1"},"consumers_connected":1}},"topic":"backend/service/1","event":"phx_reply"}"""
+        input = """{"ref":"1","payload":{"status":"ok","response":{"service":{"id":1,"name":"Service 1"},"num_consumers":1}},"topic":"backend/service/1","event":"phx_reply"}"""
         expected = {
             "ref": "1",
             "topic": "backend/service/1",
@@ -24,7 +24,7 @@ class TestEvent(unittest.TestCase):
                         "id": 1,
                         "name": "Service 1"
                     },
-                    "consumers_connected": 1
+                    "num_consumers": 1
                 }
             }
         }
@@ -91,18 +91,18 @@ class TestEvent(unittest.TestCase):
         output = Event(**loads(input)).model_dump()
         self.assertEqual(output, expected)
 
-    def test_consumers_connected(self):
+    def test_num_consumers(self):
         """
-        Test the serialization of a consumers_connected event
-        consumers_connected is an event that indicates the number of consumers connected to a service.
+        Test the serialization of a num_consumers event
+        num_consumers is an event that indicates the number of consumers connected to a service.
         """
-        input = """{"ref":null,"payload":{"consumers_connected":1},"topic":"backend/service/1","event":"consumers_connected"}"""
+        input = """{"ref":null,"payload":{"num_consumers":1},"topic":"backend/service/1","event":"num_consumers"}"""
         expected = {
             "ref": None,
             "topic": "backend/service/1",
-            "event": "consumers_connected",
+            "event": "num_consumers",
             "payload": {
-                "consumers_connected": 1
+                "num_consumers": 1
             }
         }
         output = Event(**loads(input)).model_dump()

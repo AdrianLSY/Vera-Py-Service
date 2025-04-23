@@ -13,7 +13,7 @@ class PlugboardClient(BaseModel):
     Attributes:
         service (Optional[Service]): The service object associated with the client.
         token (Optional[Token]): The token object associated with the client.
-        consumers_connected (int): The number of clients connected to the service.
+        num_consumers (int): The number of clients connected to the service.
         connected (bool): A flag indicating whether this client is connected to the service.
 
     Methods:
@@ -24,14 +24,14 @@ class PlugboardClient(BaseModel):
         __handle_phx_reply_event(event: PhxReplyEvent): Handles a reply event.
         __handle_service_updated_event(event: ServiceUpdatedEvent): Handles a service updated event.
         __handle_service_deleted_event(event: ServiceDeletedEvent): Handles a service deleted event.
-        __handle_consumers_connected_event(event: ConsumersConnectedEvent): Handles a clients connected event.
+        __handle_num_consumers_event(event: ConsumersConnectedEvent): Handles a clients connected event.
         __handle_request_event(event: RequestEvent): Handles a request event.
         __handle_token_created_event(event: TokenCreatedEvent): Handles a token created event.
         __handle_token_deleted_event(event: TokenDeletedEvent): Handles a token deleted event.
     """
     service: Optional[Service] = None
     token: Token = Token()
-    consumers_connected: int = 0
+    num_consumers: int = 0
     connected: bool = False
 
     async def connect(self, websocket_url: str, service_id: str | int, token: str) -> None:
@@ -82,7 +82,7 @@ class PlugboardClient(BaseModel):
                     elif isinstance(event.root, ServiceDeletedEvent):
                         await self.__handle_service_deleted_event(event.root)
                     elif isinstance(event.root, ConsumersConnectedEvent):
-                        await self.__handle_consumers_connected_event(event.root)
+                        await self.__handle_num_consumers_event(event.root)
                     elif isinstance(event.root, RequestEvent):
                         await self.__handle_request_event(event.root, websocket, actions)
                     elif isinstance(event.root, TokenCreatedEvent):
@@ -125,7 +125,7 @@ class PlugboardClient(BaseModel):
         """
         def handle_phx_reply_ok(event: PhxReplyOk, token: str) -> None:
             self.service = event.response.service
-            self.consumers_connected = event.response.consumers_connected
+            self.num_consumers = event.response.num_consumers
             self.token = event.response.token
             self.token.value = token
             print("PHX reply ok event:")
@@ -170,7 +170,7 @@ class PlugboardClient(BaseModel):
         print("Service deleted event:")
         print(event.model_dump_json(indent = 4))
 
-    async def __handle_consumers_connected_event(self, event: ConsumersConnectedEvent) -> None:
+    async def __handle_num_consumers_event(self, event: ConsumersConnectedEvent) -> None:
         """
         Handles a clients connected event.
 
@@ -180,7 +180,7 @@ class PlugboardClient(BaseModel):
         Returns:
             None
         """
-        self.consumers_connected = event.payload.consumers_connected
+        self.num_consumers = event.payload.num_consumers
         print("Clients connected event:")
         print(event.model_dump_json(indent = 4))
 

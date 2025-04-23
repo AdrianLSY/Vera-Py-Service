@@ -71,11 +71,11 @@ class PhxReplyOkResponse(BaseModel):
 
     Attributes:
         service (Service): The service information included in the response.
-        consumers_connected (int): The number of clients connected to the service.
+        num_consumers (int): The number of clients connected to the service.
     """
     service: Service
     token: Token
-    consumers_connected: int
+    num_consumers: int
 
 
 class PhxReplyOk(BaseModel):
@@ -191,9 +191,9 @@ class ClientsConnectedPayload(BaseModel):
     Represents the payload for a clients connected event.
 
     Attributes:
-        consumers_connected (int): The number of clients connected to the service.
+        num_consumers (int): The number of clients connected to the service.
     """
-    consumers_connected: int
+    num_consumers: int
 
 
 class ConsumersConnectedEvent(BaseModel):
@@ -203,12 +203,12 @@ class ConsumersConnectedEvent(BaseModel):
     Attributes:
         ref (Optional[str]): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
-        event (Literal["consumers_connected"]): A literal indicating the event type "consumers_connected".
+        event (Literal["num_consumers"]): A literal indicating the event type "num_consumers".
         payload (ClientsConnectedPayload): The payload containing the number of clients connected to the service.
     """
     ref: Optional[str] = None
     topic: str
-    event: Literal["consumers_connected"]
+    event: Literal["num_consumers"]
     payload: ClientsConnectedPayload
 
 
@@ -309,7 +309,7 @@ class Event(
         - "phx_reply" for PhxReplyEvent.
         - "service_updated" for ServiceUpdatedEvent.
         - "service_deleted" for ServiceDeletedEvent.
-        - "consumers_connected" for ConsumersConnectedEvent.
+        - "num_consumers" for ConsumersConnectedEvent.
         - "request" for RequestEvent.
     """
     pass
