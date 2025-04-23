@@ -12,7 +12,7 @@ class ActionModel(BaseModel, ABC):
     Base class for action models.
     The ActionModel is a base class for defining an action. It provides a common interface for defining actions and their respective fields.
 
-    Subclasses of ActionModel must implement the description() and run() methods.
+    Subclasses of ActionModel must implement the description() method.
     """
     @classmethod
     @abstractmethod
@@ -113,7 +113,9 @@ class ActionRegistry():
     The ActionRegistry provides a way to dynamically load all ActionRunner classes from the actions directory.
 
     Methods:
-        load_actions(): Dynamically loads all ActionRunner classes from the actions directory.
+        actions(path: str = "actions") -> Dict[str, Type[ActionRunner]]: Dynamically loads all ActionRunner classes from the actions directory.
+        dict(path: str = "actions") -> dict: Returns a dictionary containing the dictionary schemas for all ActionRunner classes.
+        json(path: str = "actions", indent: int = None) -> str: Returns a JSON string containing the JSON schemas for all ActionRunner classes.
     """
 
     @staticmethod
