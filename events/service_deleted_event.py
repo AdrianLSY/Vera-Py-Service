@@ -46,5 +46,4 @@ class ServiceDeletedEvent(ActionRunner):
 
     async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> any:
         await websocket.close()
-        client.connected = False
         raise ConnectionAbortedError
