@@ -1,13 +1,18 @@
 from pydantic import Field
-from typing import Literal
-from core.actions import ActionRunner, ActionModel
+from websockets import ClientConnection
+from typing import Literal, TYPE_CHECKING
+from core.action_model import ActionModel
+from core.action_runner import ActionRunner
 
-class ConsumersConnectedEvent(ActionRunner):
+if TYPE_CHECKING:
+    from core.plugboard_client import PlugboardClient
+
+class ConsumerConnectedEvent(ActionRunner):
     """
     Represents an event indicating that the number of consumers connected to the service has changed.
 
     Attributes:
-        ref (Optional[str]): A reference identifier for the event.
+        ref (str | None): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
         event (Literal["num_consumers"]): A literal indicating the event type "num_consumers".
         payload (Payload): The payload containing the number of consumers connected to the service.
@@ -21,16 +26,21 @@ class ConsumersConnectedEvent(ActionRunner):
         """
         num_consumers: int = Field(description = "The number of consumers connected to the service.")
 
-        def description(self) -> str:
+        def description(cls) -> str:
             return "Represents the payload for a consumers connected event."
 
-    ref: str = Field(description = "A reference identifier for the event.", default = None)
+    ref: str | None = Field(description = "A reference identifier for the event.", default = None)
     topic: str = Field(description = "The topic to which the event is associated.")
-    event: Literal["num_consumers"] = Field(description = "A literal indicating the event type \"num_consumers\".")
+    event: Literal["num_consumers"] = Field(description = "A literal indicating the event type \"num_consumers\".", default = "num_consumers")
     payload: Payload = Field(description = "The payload containing the number of consumers connected to the service.")
 
-    def description(self) -> str:
+    @classmethod
+    def discriminator(cls) -> str:
+        return "num_consumers"
+
+    @classmethod
+    def description(cls) -> str:
         return "Represents an event indicating that the number of consumers connected to the service has changed."
 
-    def run(self) -> str:
-        print(self.model_dump_json(indent = 4))
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> any:
+        client.num_consumers = self.payload.num_consumers

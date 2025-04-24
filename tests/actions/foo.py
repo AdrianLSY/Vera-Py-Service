@@ -1,5 +1,5 @@
 from pydantic import Field
-from core.actions import ActionRunner
+from core.action_runner import ActionRunner
 
 class Foo(ActionRunner):
     foo: str = Field(description = "The foo value", default = "Foo")
@@ -9,5 +9,5 @@ class Foo(ActionRunner):
     def description(self) -> str:
         return "This is a Foo test action"
 
-    def run(self) -> str:
+    async def run(self) -> str:
         return f"{self.foo} {self.bar}"

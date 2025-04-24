@@ -1,5 +1,6 @@
 from pydantic import Field
-from core.actions import ActionModel, ActionRunner
+from core.action_model import ActionModel
+from core.action_runner import ActionRunner
 
 class Foo(ActionModel):
     foo: str = Field(description = "The foo value", default = "Foo")

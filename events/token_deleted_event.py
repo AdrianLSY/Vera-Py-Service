@@ -1,16 +1,21 @@
 from pydantic import Field
-from typing import Literal
-from core.models import Token
-from core.actions import ActionRunner, ActionModel
+from models.token import Token
+from websockets import ClientConnection
+from typing import Literal, TYPE_CHECKING
+from core.action_model import ActionModel
+from core.action_runner import ActionRunner
+
+if TYPE_CHECKING:
+    from core.plugboard_client import PlugboardClient
 
 class TokenDeletedEvent(ActionRunner):
     """
     Represents an event when a token has been created.
 
     Attributes:
-        ref (Optional[str]): A reference identifier for the event.
+        ref (str | None): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
-        event (Literal["token_created"]): A literal indicating the event type "token_created".
+        event (Literal["token_deleted"]): A literal indicating the event type "token_deleted".
         payload (Payload): The payload containing the token information.
     """
     class Payload(ActionModel):
@@ -22,16 +27,22 @@ class TokenDeletedEvent(ActionRunner):
         """
         token: Token = Field(description = "The token information.")
 
-        def description(self) -> str:
+        @classmethod
+        def description(cls) -> str:
             return "Represents the payload for a token event."
 
-    ref: str = Field(description = "A reference identifier for the event.", default = None)
+    ref: str | None = Field(description = "A reference identifier for the event.", default = None)
     topic: str = Field(description = "The topic to which the event is associated.")
-    event: Literal["token_created"] = Field(description = "A literal indicating the event type \"token_created\".")
+    event: Literal["token_deleted"] = Field(description = "A literal indicating the event type \"token_deleted\".", default = "token_created")
     payload: Payload = Field(description = "The payload containing the token information.")
 
-    def description(self) -> str:
+    @classmethod
+    def discriminator(cls) -> str:
+        return "token_deleted"
+
+    @classmethod
+    def description(cls) -> str:
         return "Represents an event when a token has been created."
 
-    def run(self) -> str:
-        print(self.model_dump_json(indent = 4))
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> any:
+        pass

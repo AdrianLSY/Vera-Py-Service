@@ -1,6 +1,6 @@
 from os import getenv
 from asyncio import run
-from core.client import PlugboardClient
+from core.plugboard_client import PlugboardClient
 
 if __name__ == '__main__':
     run(

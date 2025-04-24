@@ -1,13 +1,18 @@
-from typing import Literal
 from pydantic import Field
-from core.actions import ActionRunner, ActionModel
+from websockets import ClientConnection
+from typing import Literal, TYPE_CHECKING
+from core.action_model import ActionModel
+from core.action_runner import ActionRunner
+
+if TYPE_CHECKING:
+    from core.plugboard_client import PlugboardClient
 
 class PhxJoinEvent(ActionRunner):
     """
     Represents a Phoenix join event.
 
     Attributes:
-        ref (Optional[str]): A reference identifier for the event.
+        ref (str | None): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
         event (Literal["phx_join"]): A literal indicating the event type "phx_join".
         payload (Payload): The payload of the join event.
@@ -17,20 +22,28 @@ class PhxJoinEvent(ActionRunner):
         Represents the payload for a Phoenix join event.
 
         Attributes:
-            None: This model does not include any fields.
+            token (str): The token to use for authentication.
+            actions (dict[str, dict]): The actions that the client can perform.
         """
-        pass
+        token: str = Field(description = "The token to use for authentication.")
+        actions: dict[str, dict] = Field(description = "The actions that the client can perform.")
 
-        def description(self) -> str:
+        @classmethod
+        def description(cls) -> str:
             return "Represents the payload for a Phoenix join event."
 
-    ref: str = Field(description = "A reference identifier for the event.", default = None)
+    ref: str | None = Field(description = "A reference identifier for the event.", default = None)
     topic: str = Field(description = "The topic to which the event is associated.")
-    event: Literal["phx_join"] = Field(description = "A literal indicating the event type \"phx_join\".")
+    event: Literal["phx_join"] = Field(description = "A literal indicating the event type \"phx_join\".", default = "phx_join")
     payload: Payload = Field(description = "The payload of the join event.")
 
-    def description(self) -> str:
+    @classmethod
+    def discriminator(cls) -> str:
+        return "phx_join"
+
+    @classmethod
+    def description(cls) -> str:
         return "Represents a Phoenix join event."
 
-    def run(self) -> str:
-        print(self.model_dump_json(indent = 4))
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> any:
+        pass
