@@ -44,5 +44,5 @@ class TokenCreatedEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents an event indicating that a token has been created."
 
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
+    async def run(self, client: PlugboardClient, websocket: ClientConnection) -> None:
         client.token = self.payload.token

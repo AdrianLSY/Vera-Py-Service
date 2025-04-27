@@ -44,5 +44,5 @@ class TokenDeletedEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents an event when a token has been created."
 
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
+    async def run(self, client: PlugboardClient, websocket: ClientConnection) -> None:
         pass

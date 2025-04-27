@@ -41,5 +41,5 @@ class PhxJoinEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents a Phoenix join event."
 
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
+    async def run(self, client: PlugboardClient, websocket: ClientConnection) -> None:
         pass
