@@ -44,5 +44,5 @@ class ServiceUpdatedEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents an event indicating that a service has been updated."
 
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> any:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
         client.service = self.payload.service

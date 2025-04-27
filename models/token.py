@@ -15,12 +15,13 @@ class Token(ActionModel):
         inserted_at (Optional[datetime]): The date and time the token was inserted.
         expires_at (Optional[datetime]): The date and time the token expires.
     """
-    id: int = Field(description = "The unique identifier for the token.", default = None)
-    context: str = Field(description = "The context for the token.", default = None)
-    value: str = Field(description = "The value for the token.", default = None)
-    service_id: int = Field(description = "The ID of the service associated with the token.", default = None)
-    inserted_at: datetime = Field(description = "The date and time the token was inserted.", default = None)
-    expires_at: datetime = Field(description = "The date and time the token expires.", default = None)
-
+    id: int | None = Field(description = "The unique identifier for the token.", default = None)
+    context: str | None = Field(description = "The context for the token.", default = None)
+    value: str | None = Field(description = "The value for the token.", default = None)
+    service_id: int | None = Field(description = "The ID of the service associated with the token.", default = None)
+    inserted_at: datetime | None = Field(description = "The date and time the token was inserted.", default = None)
+    expires_at: datetime | None = Field(description = "The date and time the token expires.", default = None)
+    
+    @classmethod
     def description(cls) -> str:
         return "Represents a token with a unique identifier, context, value, service id, and inserted and expiration date."

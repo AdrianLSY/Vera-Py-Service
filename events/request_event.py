@@ -29,7 +29,7 @@ class RequestEvent(ActionRunner):
         """
         action: str = Field(description = "The name of the action to run.")
         fields: dict = Field(description = "The fields to pass to the action.")
-        response_ref: str = Field(description = "The reference to send a response for the request.", default = None)
+        response_ref: str | None = Field(description = "The reference to send a response for the request.", default = None)
 
         @classmethod
         def description(cls) -> str:
@@ -48,10 +48,10 @@ class RequestEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents a request event to be be handled by the corresponding action runner."
 
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> any:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
         try:
             response = {
-                "message": await client.actions[self.payload.action](**self.payload.fields).run(),
+                "message": await client.actions[self.payload.action](**self.payload.fields).run(client, websocket),
                 "status": "success"
             }
             dumps(response)
@@ -60,9 +60,9 @@ class RequestEvent(ActionRunner):
                 "message": f"Unknown action: {self.payload.action}",
                 "status": "error"
             }
-        except TypeError as error:
+        except TypeError:
             response = {
-                "message": f"Client sent an invalid response",
+                "message": "Client sent an invalid response",
                 "status": "error"
             }
         await websocket.send(

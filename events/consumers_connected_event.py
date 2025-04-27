@@ -25,7 +25,8 @@ class ConsumerConnectedEvent(ActionRunner):
             num_consumers (int): The number of consumers connected to the service.
         """
         num_consumers: int = Field(description = "The number of consumers connected to the service.")
-
+        
+        @classmethod
         def description(cls) -> str:
             return "Represents the payload for a consumers connected event."
 
@@ -42,5 +43,5 @@ class ConsumerConnectedEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents an event indicating that the number of consumers connected to the service has changed."
 
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> any:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
         client.num_consumers = self.payload.num_consumers

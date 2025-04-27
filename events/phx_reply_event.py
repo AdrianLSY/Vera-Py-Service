@@ -46,7 +46,8 @@ class PhxReplyEvent(ActionRunner):
 
         status: Literal["ok"] = Field(description = "A literal value \"ok\" indicating a successful response.")
         response: Response = Field(description = "The successful reply payload containing service, token and information.")
-
+        
+        @classmethod
         def description(cls) -> str:
             return "Represents a successful Phoenix reply event."
 
@@ -97,10 +98,12 @@ class PhxReplyEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents a Phoenix reply event that can either be a successful response or an error response."
 
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> any:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
+        if not isinstance(self.payload, self.PhxReplyOk):
+           return
         token = client.token
         client.token = self.payload.response.token
         client.token.value = token.value
-
+   
         client.service = self.payload.response.service
         client.num_consumers = self.payload.response.num_consumers

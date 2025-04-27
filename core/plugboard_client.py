@@ -1,3 +1,4 @@
+from typing import Type
 from urllib.parse import quote
 from models.token import Token
 from models.service import Service
@@ -6,7 +7,7 @@ from json import dumps, loads, JSONDecodeError
 from events.phx_join_event import PhxJoinEvent
 from core.action_registry import ActionRegistry
 from pydantic import BaseModel, ValidationError, Field
-from websockets import connect, ClientConnection, ConnectionClosed, InvalidStatus
+from websockets import connect, ClientConnection, ConnectionClosed
 
 class PlugboardClient(BaseModel):
     """
@@ -24,27 +25,23 @@ class PlugboardClient(BaseModel):
     Methods:
         connect(websocket_url: str, service_id: str | int, token: str): Connects to the Plugboard application and handles events.
     """
-    service: Service = Field(default = None)
+    service: Service | None = Field(default = None)
     token: Token = Field(default = Token())
     num_consumers: int = Field(default = 0)
     connected: bool = Field(default = False)
-    events: dict[str, ActionRunner] = Field(default = ActionRegistry.discover("events", ActionRunner))
-    actions: dict[str, ActionRunner] = Field(default = ActionRegistry.discover("actions", ActionRunner))
+    events: dict[str, Type[ActionRunner]] = Field(default=ActionRegistry.discover("events", ActionRunner))
+    actions: dict[str, Type[ActionRunner]] = Field(default=ActionRegistry.discover("actions", ActionRunner))
 
     async def __loop(self, websocket: ClientConnection) -> None:
-        await websocket.send(PhxJoinEvent(topic = f"service").model_dump_json())
+        await websocket.send(PhxJoinEvent(topic = "service").model_dump_json())
         while self.connected:
             try:
                 message = loads(await websocket.recv())
-                print(message)
                 await self.events[message["event"]](**message).run(self, websocket)
-                print(f"Client connected: {self.num_consumers}")
-                print(self.service.model_dump_json(indent = 4))
-                print(self.token.model_dump_json(indent = 4))
             except JSONDecodeError:
-                print(f"Invalid JSON")
+                print("Invalid JSON")
             except KeyError:
-                print(f"Invalid message")
+                print("Invalid message")
             except ValidationError as error:
                 print(f"Invalid event: {error}")
             except ConnectionClosed:

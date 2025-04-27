@@ -16,6 +16,7 @@ class Service(ActionModel):
     name: str = Field(description = "The name of the service.")
     inserted_at: datetime = Field(description = "The date and time the service was inserted.")
     updated_at: datetime = Field(description = "The date and time the service was last updated.")
-
+    
+    @classmethod
     def description(cls) -> str:
         return "Represents a service with a unique identifier and a name."

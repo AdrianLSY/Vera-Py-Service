@@ -33,7 +33,7 @@ class TokenDeletedEvent(ActionRunner):
 
     ref: str | None = Field(description = "A reference identifier for the event.", default = None)
     topic: str = Field(description = "The topic to which the event is associated.")
-    event: Literal["token_deleted"] = Field(description = "A literal indicating the event type \"token_deleted\".", default = "token_created")
+    event: Literal["token_deleted"] = Field(description = "A literal indicating the event type \"token_deleted\".", default = "token_deleted")
     payload: Payload = Field(description = "The payload containing the token information.")
 
     @classmethod
@@ -44,5 +44,5 @@ class TokenDeletedEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents an event when a token has been created."
 
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> any:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
         pass
