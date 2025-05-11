@@ -43,5 +43,5 @@ class ConsumerConnectedEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents an event indicating that the number of consumers connected to the service has changed."
 
-    async def run(self, client: PlugboardClient, websocket: ClientConnection) -> None:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
         client.num_consumers = self.payload.num_consumers

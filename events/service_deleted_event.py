@@ -44,6 +44,6 @@ class ServiceDeletedEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents an event indicating that a service has been deleted."
 
-    async def run(self, client: PlugboardClient, websocket: ClientConnection) -> None:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
         await websocket.close()
         raise ConnectionAbortedError

@@ -48,7 +48,7 @@ class RequestEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents a request event to be be handled by the corresponding action runner."
 
-    async def run(self, client: PlugboardClient, websocket: ClientConnection) -> None:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
         try:
             response = {
                 "message": await client.actions[self.payload.action](**self.payload.fields).run(client, websocket),
