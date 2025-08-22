@@ -1,6 +1,5 @@
 import unittest
 from core.plugboard_client import PlugboardClient
-from core.action_registry import ActionRegistry
 
 class TestPlugboardClient(unittest.TestCase):
     def setUp(self):
