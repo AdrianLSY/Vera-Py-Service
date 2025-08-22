@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from websockets import ClientConnection
 from core.action_model import ActionModel
 from core.action_runner import ActionRunner
+from core.action_response import ActionResponse
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
@@ -46,8 +47,12 @@ class FooBarBaz(ActionRunner):
     def description(cls) -> str:
         return "This is a FooBarBaz test action"
 
-    async def run(self, client: PlugboardClient, websocket: ClientConnection) -> str:
+    async def run(self, client: PlugboardClient, websocket: ClientConnection) -> ActionResponse:
         foo = f"{self.foo.foo} {self.foo.bar}"
         bar = f"{self.bar.foo} {self.bar.bar}"
         baz = f"{self.baz.foo} {self.baz.bar}"
-        return f"{foo} {bar} {baz}"
+        hello_world = f"{self.hello} {self.world}"
+        return ActionResponse(
+            status_code = 200,
+            fields = f"{foo} {bar} {baz} {hello_world}"
+        )
