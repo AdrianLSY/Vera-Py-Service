@@ -1,7 +1,8 @@
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from websockets import ClientConnection
 from core.action_model import ActionModel
+from core.action_response import ActionResponse
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
@@ -23,8 +24,9 @@ class ActionRunner(ActionModel):
     """
 
     @abstractmethod
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> Any:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
         """
         Execute the action. Must be implemented by subclasses.
+        Implementing class must return an ActionResponse
         """
         raise NotImplementedError

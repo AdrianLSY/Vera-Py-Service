@@ -4,6 +4,7 @@ from websockets import ClientConnection
 from typing import Literal, TYPE_CHECKING
 from core.action_model import ActionModel
 from core.action_runner import ActionRunner
+from core.action_response import ActionResponse
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
@@ -44,5 +45,8 @@ class TokenCreatedEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents an event indicating that a token has been created."
 
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
         client.token = self.payload.token
+        return ActionResponse(
+            status_code = 200
+        )

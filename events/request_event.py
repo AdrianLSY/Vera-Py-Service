@@ -4,6 +4,7 @@ from websockets import ClientConnection
 from typing import Literal, TYPE_CHECKING
 from core.action_model import ActionModel
 from core.action_runner import ActionRunner
+from core.action_response import ActionResponse
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
@@ -48,12 +49,13 @@ class RequestEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents a request event to be be handled by the corresponding action runner."
 
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
         try:
             response = {
                 "message": await client.actions[self.payload.action](**self.payload.fields).run(client, websocket),
                 "status": "success"
             }
+            USE ActionResponse
             dumps(response)
         except KeyError:
             response = {

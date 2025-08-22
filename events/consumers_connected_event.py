@@ -3,6 +3,7 @@ from websockets import ClientConnection
 from typing import Literal, TYPE_CHECKING
 from core.action_model import ActionModel
 from core.action_runner import ActionRunner
+from core.action_response import ActionResponse
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
@@ -43,5 +44,8 @@ class ConsumerConnectedEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents an event indicating that the number of consumers connected to the service has changed."
 
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
         client.num_consumers = self.payload.num_consumers
+        return ActionResponse(
+            status_code = 200
+        )

@@ -4,6 +4,7 @@ from models.service import Service
 from websockets import ClientConnection
 from core.action_model import ActionModel
 from core.action_runner import ActionRunner
+from core.action_response import ActionResponse
 from typing import Annotated, Literal, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -98,12 +99,18 @@ class PhxReplyEvent(ActionRunner):
     def description(cls) -> str:
         return "Represents a Phoenix reply event that can either be a successful response or an error response."
 
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> None:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
         if not isinstance(self.payload, self.PhxReplyOk):
-           return
+            return ActionResponse(
+                status_code = 400,
+                message = self.payload.response.reason
+            )
         token = client.token
         client.token = self.payload.response.token
         client.token.value = token.value
 
         client.service = self.payload.response.service
         client.num_consumers = self.payload.response.num_consumers
+        return ActionResponse(
+            status_code = 200
+        )
