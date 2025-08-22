@@ -51,29 +51,25 @@ class RequestEvent(ActionRunner):
 
     async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
         try:
-            response = {
-                "message": await client.actions[self.payload.action](**self.payload.fields).run(client, websocket),
-                "status": "success"
-            }
-            USE ActionResponse
-            dumps(response)
+            response = await client.actions[self.payload.action](**self.payload.fields).run(client, websocket)
         except KeyError:
-            response = {
-                "message": f"Unknown action: {self.payload.action}",
-                "status": "error"
-            }
-        except TypeError:
-            response = {
-                "message": "Client sent an invalid response",
-                "status": "error"
-            }
+            response = ActionResponse(
+                status_code = 404,
+                message = f"Unknown action: {self.payload.action}",
+            )
+        except Exception:
+            response = ActionResponse(
+                status_code = 500,
+                message = "Internal server error"
+            )
         await websocket.send(
             dumps(
                 {
                     "topic": self.topic,
                     "event": "response",
-                    "payload": response,
+                    "payload": response.model_dump(),
                     "ref": self.payload.response_ref
                 }
             )
         )
+        return response
