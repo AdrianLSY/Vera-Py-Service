@@ -7,6 +7,10 @@ from core.action_response import ActionResponse
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
 
+"""
+This serves as an example action that demonstrates how to create a new action.
+"""
+
 class Baz(ActionRunner):
     foo: str | None = Field(description = "The foo value", default = None)
     bar: str | None = Field(description = "The bar value", default = None)
