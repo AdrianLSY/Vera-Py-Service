@@ -47,7 +47,7 @@ class FooBarBaz(ActionRunner):
     def description(cls) -> str:
         return "This is a FooBarBaz test action"
 
-    async def run(self, client: PlugboardClient, websocket: ClientConnection) -> ActionResponse:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
         foo = f"{self.foo.foo} {self.foo.bar}"
         bar = f"{self.bar.foo} {self.bar.bar}"
         baz = f"{self.baz.foo} {self.baz.bar}"

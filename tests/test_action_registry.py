@@ -16,26 +16,26 @@ from events.consumers_connected_event import ConsumerConnectedEvent
 class TestActionRegistry(unittest.TestCase):
     def test_get_events(self):
         expected = {
-            'phx_reply': PhxReplyEvent,
-            'phx_join': PhxJoinEvent,
-            'num_consumers': ConsumerConnectedEvent,
-            'service_updated': ServiceUpdatedEvent,
-            'service_deleted': ServiceDeletedEvent,
-            'token_created': TokenCreatedEvent,
-            'token_deleted': TokenDeletedEvent,
-            'request': RequestEvent
+            "phx_reply": PhxReplyEvent,
+            "phx_join": PhxJoinEvent,
+            "num_consumers": ConsumerConnectedEvent,
+            "service_updated": ServiceUpdatedEvent,
+            "service_deleted": ServiceDeletedEvent,
+            "token_created": TokenCreatedEvent,
+            "token_deleted": TokenDeletedEvent,
+            "request": RequestEvent
         }
         actions = ActionRegistry.discover("events", ActionRunner)
         self.assertEqual(expected, actions)
 
     def test_get_models(self):
         expected = {
-            'Token': Token,
-            'Service': Service
+            "Token": Token,
+            "Service": Service
         }
         actions = ActionRegistry.discover("models", ActionModel)
         self.assertEqual(expected, actions)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

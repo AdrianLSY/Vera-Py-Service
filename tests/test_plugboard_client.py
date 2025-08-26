@@ -9,5 +9,5 @@ class TestPlugboardClient(unittest.TestCase):
         self.assertIsNotNone(self.client)
         self.assertIsInstance(self.client, PlugboardClient)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
