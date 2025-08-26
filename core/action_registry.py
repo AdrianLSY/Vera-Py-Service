@@ -56,7 +56,7 @@ class ActionRegistry():
         module_prefix = path.replace("/", ".")
 
         for filename in listdir(path):
-            if filename.endswith('.py') and filename != '__init__.py':
+            if filename.endswith(".py") and filename != "__init__.py":
                 module_name = f"{module_prefix}.{filename[:-3]}"
                 module = import_module(module_name)
                 for _, obj in getmembers(module, lambda x: isclass(x) and x.__base__ == action_type):

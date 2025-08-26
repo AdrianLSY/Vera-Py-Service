@@ -18,7 +18,7 @@ class PhxReplyEvent(ActionRunner):
         ref (str | None): A reference identifier for the event.
         topic (str): The topic to which the event is associated.
         event (Literal["phx_reply"]): A literal indicating the event type "phx_reply".
-        payload (Union[PhxReplyOk, PhxReplyError]): The reply payload which is discriminated by the 'status' field.
+        payload (Union[PhxReplyOk, PhxReplyError]): The reply payload which is discriminated by the "status" field.
     """
     class PhxReplyOk(ActionModel):
         """
@@ -89,7 +89,7 @@ class PhxReplyEvent(ActionRunner):
             PhxReplyError
         ],
         Field(discriminator = "status")
-    ] = Field(description = "The reply payload which is discriminated by the 'status' field.")
+    ] = Field(description = "The reply payload which is discriminated by the "status" field.")
 
     @classmethod
     def discriminator(cls) -> str:

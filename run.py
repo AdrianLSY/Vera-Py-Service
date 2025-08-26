@@ -2,7 +2,7 @@ from os import getenv
 from asyncio import run
 from core.plugboard_client import PlugboardClient
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     websocket_url = getenv("WEBSOCKET_URL")
     token = getenv("TOKEN")
 

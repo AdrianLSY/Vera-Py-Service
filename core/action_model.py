@@ -37,41 +37,41 @@ class ActionModel(BaseModel, ABC):
     def model_dict(cls) -> dict:
         """
         Returns the model definition as a dictionary.
-    
+
         Returns:
             dict: The model definition as a dictionary.
-        """  
+        """
         def check_subclass(class_type: type | None, parent_cls: type) -> bool:
             if class_type is None:
                 return False
             return issubclass(class_type, parent_cls)
-    
+
         schema = cls.model_json_schema()
         class_name = cls.__name__
-        properties = schema.get('properties', {})
-    
+        properties = schema.get("properties", {})
+
         fields = {}
         for field_name, field_schema in properties.items():
-            field_type = field_schema.get('type')
-    
+            field_type = field_schema.get("type")
+
             # Handle nested ActionModel fields
-            if '$ref' in field_schema:
+            if "$ref" in field_schema:
                 field_class = cls.model_fields[field_name].annotation
                 if check_subclass(field_class, ActionModel):
                     # Explicitly cast field_class to Type[ActionModel]
                     action_model_class = cast(Type[ActionModel], field_class)
-                    
+
                     # Now use action_model_class instead of field_class
                     nested_fields = {}
-                    nested_fields['type'] = action_model_class.discriminator()
-                    nested_fields['description'] = action_model_class.description()
-                    nested_fields['fields'] = next(
+                    nested_fields["type"] = action_model_class.discriminator()
+                    nested_fields["description"] = action_model_class.description()
+                    nested_fields["fields"] = next(
                         iter(
                             loads(
                                 action_model_class.model_json()
                             ).values()
                         )
-                    )['fields']
+                    )["fields"]
                     fields[field_name] = nested_fields
                     continue
 
@@ -79,10 +79,10 @@ class ActionModel(BaseModel, ABC):
                 key: value
                 for key, value in {
                     "type": field_type,
-                    "description": field_schema.get('description'),
-                    "default": field_schema.get('default') if 'default' in field_schema else None
+                    "description": field_schema.get("description"),
+                    "default": field_schema.get("default") if "default" in field_schema else None
                 }.items()
-                if key != 'default' or ('default' in field_schema)
+                if key != "default" or ("default" in field_schema)
             }
             fields[field_name] = field_info
 

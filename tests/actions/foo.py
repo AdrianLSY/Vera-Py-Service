@@ -15,7 +15,7 @@ class Foo(ActionRunner):
     def description(cls) -> str:
         return "This is a Foo test action"
 
-    async def run(self, client: PlugboardClient, websocket: ClientConnection) -> ActionResponse:
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
         return ActionResponse(
             status_code = 200,
             fields = f"{self.foo} {self.bar}"
