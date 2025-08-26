@@ -89,7 +89,7 @@ class PhxReplyEvent(ActionRunner):
             PhxReplyError
         ],
         Field(discriminator = "status")
-    ] = Field(description = "The reply payload which is discriminated by the "status" field.")
+    ] = Field(description = "The reply payload which is discriminated by the 'status' field.")
 
     @classmethod
     def discriminator(cls) -> str:
