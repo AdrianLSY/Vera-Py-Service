@@ -1,7 +1,7 @@
 import unittest
 from core.plugboard_client import PlugboardClient
 
-class TestPlugboardClient(unittest.TestCase):
+class PlugboardClientTest(unittest.TestCase):
     def setUp(self):
         self.client = PlugboardClient()
 

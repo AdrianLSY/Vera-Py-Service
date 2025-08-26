@@ -13,7 +13,7 @@ from events.service_updated_event import ServiceUpdatedEvent
 from events.service_deleted_event import ServiceDeletedEvent
 from events.consumers_connected_event import ConsumerConnectedEvent
 
-class TestActionRegistry(unittest.TestCase):
+class ActionRegistryTest(unittest.TestCase):
     def test_get_events(self):
         expected = {
             "phx_reply": PhxReplyEvent,
