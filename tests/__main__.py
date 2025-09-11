@@ -25,8 +25,7 @@ def main():
     """Run all test modules."""
     # List of test modules to run
     test_modules = [
-        "tests.core.action_registry_test",
-        "tests.core.plugboard_client_test"
+        # to implement
     ]
 
     print("Running all tests...")

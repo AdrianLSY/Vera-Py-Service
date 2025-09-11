@@ -1,10 +1,12 @@
+from typing import TYPE_CHECKING, Literal, override
+
 from pydantic import Field
-from models.token import Token
 from websockets import ClientConnection
-from typing import Literal, TYPE_CHECKING
+
 from core.action_model import ActionModel
-from core.action_runner import ActionRunner
 from core.action_response import ActionResponse
+from core.action_runner import ActionRunner
+from models.token import Token
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
@@ -29,6 +31,7 @@ class TokenDeletedEvent(ActionRunner):
         token: Token = Field(description = "The token information.")
 
         @classmethod
+        @override
         def description(cls) -> str:
             return "Represents the payload for a token event."
 
@@ -38,13 +41,16 @@ class TokenDeletedEvent(ActionRunner):
     payload: Payload = Field(description = "The payload containing the token information.")
 
     @classmethod
+    @override
     def discriminator(cls) -> str:
         return "token_deleted"
 
     @classmethod
+    @override
     def description(cls) -> str:
         return "Represents an event when a token has been created."
 
+    @override
     async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
         return ActionResponse(
             status_code = 200

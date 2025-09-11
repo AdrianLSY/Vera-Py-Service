@@ -1,6 +1,10 @@
-from pydantic import Field
 from datetime import datetime
+from typing import override
+
+from pydantic import Field
+
 from core.action_model import ActionModel
+
 
 class Token(ActionModel):
     """
@@ -21,7 +25,8 @@ class Token(ActionModel):
     service_id: int | None = Field(description = "The ID of the service associated with the token.", default = None)
     inserted_at: datetime | None = Field(description = "The date and time the token was inserted.", default = None)
     expires_at: datetime | None = Field(description = "The date and time the token expires.", default = None)
-    
+
     @classmethod
+    @override
     def description(cls) -> str:
         return "Represents a token with a unique identifier, context, value, service id, and inserted and expiration date."

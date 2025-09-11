@@ -1,7 +1,9 @@
-from typing import cast, Type
-from json import dumps, loads
-from pydantic import BaseModel
 from abc import ABC, abstractmethod
+from json import dumps, loads
+from typing import Any, Type, cast
+
+from pydantic import BaseModel
+
 
 class ActionModel(BaseModel, ABC):
     """
@@ -34,7 +36,7 @@ class ActionModel(BaseModel, ABC):
         pass
 
     @classmethod
-    def model_dict(cls) -> dict:
+    def model_dict(cls) -> dict[str, Any]:
         """
         Returns the model definition as a dictionary.
 
@@ -50,7 +52,7 @@ class ActionModel(BaseModel, ABC):
         class_name = cls.__name__
         properties = schema.get("properties", {})
 
-        fields = {}
+        fields: dict[str, Any] = {}
         for field_name, field_schema in properties.items():
             field_type = field_schema.get("type")
 
@@ -62,7 +64,7 @@ class ActionModel(BaseModel, ABC):
                     action_model_class = cast(Type[ActionModel], field_class)
 
                     # Now use action_model_class instead of field_class
-                    nested_fields = {}
+                    nested_fields: dict[str, Any] = {}
                     nested_fields["type"] = action_model_class.discriminator()
                     nested_fields["description"] = action_model_class.description()
                     nested_fields["fields"] = next(
@@ -75,18 +77,19 @@ class ActionModel(BaseModel, ABC):
                     fields[field_name] = nested_fields
                     continue
 
-            field_info = {
+            field_data: dict[str, Any] = {
+                "type": field_type,
+                "description": field_schema.get("description"),
+                "default": field_schema.get("default") if "default" in field_schema else None
+            }
+            field_info: dict[str, Any] = {
                 key: value
-                for key, value in {
-                    "type": field_type,
-                    "description": field_schema.get("description"),
-                    "default": field_schema.get("default") if "default" in field_schema else None
-                }.items()
+                for key, value in field_data.items()
                 if key != "default" or ("default" in field_schema)
             }
             fields[field_name] = field_info
 
-        return{
+        return {
             class_name: {
                 "description": cls.description(),
                 "fields": fields

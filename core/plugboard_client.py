@@ -1,13 +1,16 @@
-from typing import Type
+from json import JSONDecodeError, dumps, loads
+from typing import Any, Type
 from urllib.parse import quote
-from models.token import Token
-from models.service import Service
-from core.action_runner import ActionRunner
-from json import dumps, loads, JSONDecodeError
-from events.phx_join_event import PhxJoinEvent
+
+from pydantic import BaseModel, Field, ValidationError
+from websockets import ClientConnection, ConnectionClosed, connect
+
 from core.action_registry import ActionRegistry
-from pydantic import BaseModel, ValidationError, Field
-from websockets import connect, ClientConnection, ConnectionClosed
+from core.action_runner import ActionRunner
+from events.phx_join_event import PhxJoinEvent
+from models.service import Service
+from models.token import Token
+
 
 class PlugboardClient(BaseModel):
     """
@@ -29,8 +32,8 @@ class PlugboardClient(BaseModel):
     token: Token = Field(default = Token())
     num_consumers: int = Field(default = 0)
     connected: bool = Field(default = False)
-    events: dict[str, Type[ActionRunner]] = Field(default=ActionRegistry.discover("events", ActionRunner))
-    actions: dict[str, Type[ActionRunner]] = Field(default=ActionRegistry.discover("actions", ActionRunner))
+    events: dict[str, Type[ActionRunner]] = Field(default_factory=lambda: ActionRegistry.discover("events", ActionRunner))
+    actions: dict[str, Type[ActionRunner]] = Field(default_factory=lambda: ActionRegistry.discover("actions", ActionRunner))
 
     async def __loop(self, websocket: ClientConnection) -> None:
         await websocket.send(PhxJoinEvent(topic = "service").model_dump_json())

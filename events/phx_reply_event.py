@@ -1,11 +1,13 @@
+from typing import TYPE_CHECKING, Annotated, Literal, Union, override
+
 from pydantic import Field
-from models.token import Token
-from models.service import Service
 from websockets import ClientConnection
+
 from core.action_model import ActionModel
-from core.action_runner import ActionRunner
 from core.action_response import ActionResponse
-from typing import Annotated, Literal, Union, TYPE_CHECKING
+from core.action_runner import ActionRunner
+from models.service import Service
+from models.token import Token
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
@@ -42,6 +44,7 @@ class PhxReplyEvent(ActionRunner):
             num_consumers: int = Field(description = "The number of consumers connected to the service.")
 
             @classmethod
+            @override
             def description(cls) -> str:
                 return "Represents a successful reply response that contains service information."
 
@@ -49,6 +52,7 @@ class PhxReplyEvent(ActionRunner):
         response: Response = Field(description = "The successful reply payload containing service, token and information.")
 
         @classmethod
+        @override
         def description(cls) -> str:
             return "Represents a successful Phoenix reply event."
 
@@ -70,6 +74,7 @@ class PhxReplyEvent(ActionRunner):
             reason: str = Field(description = "The reason for the error.")
 
             @classmethod
+            @override
             def description(cls) -> str:
                 return "Represents an error reply response with a reason for the error."
 
@@ -77,6 +82,7 @@ class PhxReplyEvent(ActionRunner):
         response: Response = Field(description = "The error reply payload containing the reason for the error.")
 
         @classmethod
+        @override
         def description(cls) -> str:
             return "Represents an error Phoenix reply event."
 
@@ -92,13 +98,16 @@ class PhxReplyEvent(ActionRunner):
     ] = Field(description = "The reply payload which is discriminated by the 'status' field.")
 
     @classmethod
+    @override
     def discriminator(cls) -> str:
         return "phx_reply"
 
     @classmethod
+    @override
     def description(cls) -> str:
         return "Represents a Phoenix reply event that can either be a successful response or an error response."
 
+    @override
     async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
         if not isinstance(self.payload, self.PhxReplyOk):
             return ActionResponse(

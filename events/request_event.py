@@ -1,10 +1,12 @@
 from json import dumps
+from typing import TYPE_CHECKING, Any, Literal, override
+
 from pydantic import Field
 from websockets import ClientConnection
-from typing import Literal, TYPE_CHECKING
+
 from core.action_model import ActionModel
-from core.action_runner import ActionRunner
 from core.action_response import ActionResponse
+from core.action_runner import ActionRunner
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
@@ -29,10 +31,11 @@ class RequestEvent(ActionRunner):
             response_ref (str | None): The reference to send a response for the request.
         """
         action: str = Field(description = "The name of the action to run.")
-        fields: dict = Field(description = "The fields to pass to the action.")
+        fields: dict[str, Any] = Field(description = "The fields to pass to the action.")
         response_ref: str | None = Field(description = "The reference to send a response for the request.", default = None)
 
         @classmethod
+        @override
         def description(cls) -> str:
             return "Represents the payload for a request event."
 
@@ -42,13 +45,16 @@ class RequestEvent(ActionRunner):
     payload: Payload = Field(description = "The payload containing the request information.")
 
     @classmethod
+    @override
     def discriminator(cls) -> str:
         return "request"
 
     @classmethod
+    @override
     def description(cls) -> str:
         return "Represents a request event to be be handled by the corresponding action runner."
 
+    @override
     async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
         try:
             response = await client.actions[self.payload.action](**self.payload.fields).run(client, websocket)
