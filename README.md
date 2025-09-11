@@ -87,7 +87,7 @@ The service handles various predefined event types from the Plugboard system:
 
 ### Prerequisites
 
-- Python 3.13+
+- Python 3.12+
 - pip package manager
 
 ### Local Development
