@@ -1,11 +1,20 @@
 from os import environ
 from subprocess import run
 from sys import executable
+from typing import Dict, List
 
 environ["ENVIRONMENT"] = "test"
 
-def run_test_module(module_path):
-    """Run a single test module and return the result."""
+def run_test_module(module_path: str) -> bool:
+    """
+    Run a single test module and return the result.
+
+    Parameters:
+        module_path (str): The module path to run as a test.
+
+    Returns:
+        bool: True if the test passed, False otherwise.
+    """
     print(f"\n{'='*70}")
     print(f"Running: {module_path}")
     print(f"{'='*70}")
@@ -21,16 +30,24 @@ def run_test_module(module_path):
         print(f"Error running {module_path}: {e}")
         return False
 
-def main():
+def main() -> None:
     """Run all test modules."""
     # List of test modules to run
-    test_modules = [
-        # to implement
+    test_modules: List[str] = [
+        "tests.core.action_model_test",
+        "tests.core.action_response_test",
+        "tests.core.action_runner_test",
+        "tests.core.action_registry_test",
+        "tests.core.plugboard_client_test",
+        "tests.events.request_event_test",
+        "tests.events.phx_join_event_test",
+        "tests.models.service_test",
+        "tests.models.token_test"
     ]
 
     print("Running all tests...")
 
-    results = {}
+    results: Dict[str, bool] = {}
 
     for module in test_modules:
         success = run_test_module(module)
