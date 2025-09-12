@@ -29,16 +29,16 @@ class TestPhxJoinEvent(TestCase):
         # PhxJoinEvent is always a subclass of ActionRunner by design
         self.assertIsInstance(PhxJoinEvent, type)
 
-    def test_phx_join_event_payload_inherits_from_action_model(self) -> None:
+    def test_phx_join_event_payload_inherits_from_action_schema(self) -> None:
         """
-        Test that PhxJoinEvent.Payload inherits from ActionModel.
+        Test that PhxJoinEvent.Payload inherits from ActionSchema.
 
         Returns:
             None: This test does not return a value.
         """
-        from core.action_model import ActionModel
+        from core.action_schema import ActionSchema
 
-        # PhxJoinEvent.Payload is always a subclass of ActionModel by design
+        # PhxJoinEvent.Payload is always a subclass of ActionSchema by design
         self.assertIsInstance(PhxJoinEvent.Payload, type)
 
     def test_phx_join_event_has_required_fields(self) -> None:
@@ -65,7 +65,7 @@ class TestPhxJoinEvent(TestCase):
         # Payload should be an instance of PhxJoinEvent.Payload
         self.assertIsInstance(payload, PhxJoinEvent.Payload)
 
-        # Should have no fields (empty model)
+        # Should have no fields (empty schema)
         self.assertEqual(len(PhxJoinEvent.Payload.model_fields), 0)
 
     def test_phx_join_event_field_descriptions(self) -> None:
@@ -115,14 +115,14 @@ class TestPhxJoinEvent(TestCase):
 
         self.assertEqual(discriminator, "phx_join")
 
-    def test_phx_join_event_model_dict_structure(self) -> None:
+    def test_phx_join_event_to_dict_structure(self) -> None:
         """
-        Test that PhxJoinEvent model_dict returns correct structure.
+        Test that PhxJoinEvent to_dict returns correct structure.
 
         Returns:
             None: This test does not return a value.
         """
-        result = PhxJoinEvent.model_dict()
+        result = PhxJoinEvent.to_dict()
 
         self.assertIn("PhxJoinEvent", result)
         self.assertIn("description", result["PhxJoinEvent"])
@@ -134,14 +134,14 @@ class TestPhxJoinEvent(TestCase):
         self.assertIn("event", fields)
         self.assertIn("payload", fields)
 
-    def test_phx_join_event_model_json(self) -> None:
+    def test_phx_join_event_to_json(self) -> None:
         """
-        Test that PhxJoinEvent model_json returns valid JSON.
+        Test that PhxJoinEvent to_json returns valid JSON.
 
         Returns:
             None: This test does not return a value.
         """
-        json_str = PhxJoinEvent.model_json()
+        json_str = PhxJoinEvent.to_json()
 
         self.assertIsInstance(json_str, str)
 

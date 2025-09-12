@@ -102,7 +102,7 @@ class TestActionResponse(TestCase):
         """
         description = ActionResponse.description()
 
-        self.assertEqual(description, "The model used as a standard response returned by ActionRunner.run()")
+        self.assertEqual(description, "The schema used as a standard response returned by ActionRunner.run()")
 
     def test_action_response_discriminator(self) -> None:
         """
@@ -117,24 +117,24 @@ class TestActionResponse(TestCase):
 
     def test_action_response_inheritance(self) -> None:
         """
-        Test that ActionResponse inherits from ActionModel.
+        Test that ActionResponse inherits from ActionSchema.
 
         Returns:
             None: This test does not return a value.
         """
-        from core.action_model import ActionModel
+        from core.action_schema import ActionSchema
 
-        # ActionResponse is always a subclass of ActionModel by design
+        # ActionResponse is always a subclass of ActionSchema by design
         self.assertIsInstance(ActionResponse, type)
 
-    def test_action_response_model_dict(self) -> None:
+    def test_action_response_to_dict(self) -> None:
         """
-        Test ActionResponse model_dict method.
+        Test ActionResponse to_dict method.
 
         Returns:
             None: This test does not return a value.
         """
-        result = ActionResponse.model_dict()
+        result = ActionResponse.to_dict()
 
         self.assertIn("ActionResponse", result)
         self.assertIn("description", result["ActionResponse"])

@@ -3,10 +3,10 @@ from typing import override
 
 from pydantic import Field
 
-from core.action_model import ActionModel
+from core.action_schema import ActionSchema
 
 
-class Service(ActionModel):
+class Service(ActionSchema):
     """
     Represents a service with a unique identifier and a name.
 

@@ -34,15 +34,15 @@ def main() -> None:
     """Run all test modules."""
     # List of test modules to run
     test_modules: List[str] = [
-        "tests.core.action_model_test",
+        "tests.core.action_schema_test",
         "tests.core.action_response_test",
         "tests.core.action_runner_test",
         "tests.core.action_registry_test",
         "tests.core.plugboard_client_test",
         "tests.events.request_event_test",
         "tests.events.phx_join_event_test",
-        "tests.models.service_test",
-        "tests.models.token_test"
+        "tests.schemas.service_test",
+        "tests.schemas.token_test"
     ]
 
     print("Running all tests...")

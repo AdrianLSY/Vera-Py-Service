@@ -21,8 +21,8 @@ Vera-Py-Service is designed to be a pluggable microservice that connects to a ce
 
 ### Core Components
 
-#### 1. **ActionModel** (`core/action_model.py`)
-Base class for all action models providing:
+#### 1. **ActionSchema** (`core/action_schema.py`)
+Base class for all action schemas providing:
 - JSON schema generation
 - Model serialization/deserialization
 - Type validation through Pydantic
@@ -30,7 +30,7 @@ Base class for all action models providing:
 
 #### 2. **ActionRunner** (`core/action_runner.py`)
 Abstract base class for executable actions that:
-- Inherits from ActionModel
+- Inherits from ActionSchema
 - Defines the interface for action execution
 - Returns standardized ActionResponse objects
 
@@ -55,13 +55,13 @@ Standardized response format containing:
 
 ### Data Models
 
-#### **Service** (`models/service.py`)
+#### **Service** (`schemas/service.py`)
 Represents a service instance with:
 - Unique identifier
 - Service name
 - Creation and update timestamps
 
-#### **Token** (`models/token.py`)
+#### **Token** (`schemas/token.py`)
 Authentication token with:
 - Unique identifier
 - Context and value
@@ -222,7 +222,7 @@ Py-Service/
 ├── actions/           # Custom action implementations
 ├── events/            # Predefined event handlers (rarely modified)
 ├── core/              # Core framework components
-├── models/            # Data models
+├── schemas/            # Data schemas
 ├── tests/             # Test suite
 └── entrypoint.py      # Application entry point
 ```
@@ -238,7 +238,7 @@ The project includes comprehensive tests using Python's unittest framework:
 python -m tests
 
 # Run specific test module
-python -m tests.core.action_model_test
+python -m tests.core.action_schema_test
 ```
 
 ### Code Style

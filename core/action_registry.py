@@ -4,7 +4,7 @@ from os import listdir
 from os.path import exists
 from typing import Any, Dict, Type
 
-from core.action_model import ActionModel
+from core.action_schema import ActionSchema
 from core.action_runner import ActionRunner
 
 
@@ -15,10 +15,10 @@ class ActionRegistry():
 
     Static Methods:
         valid_action_types() -> list[Type]: Returns a list of valid action types.
-        discover(path: str, action_type: Type) -> Dict[str, Type[ActionModel]]: Dynamically discovers and loads all Action classes that match the specified action_type from the specified directory.
+        discover(path: str, action_type: Type) -> Dict[str, Type[ActionSchema]]: Dynamically discovers and loads all Action classes that match the specified action_type from the specified directory.
 
     Methods:
-        actions(path: str, action_type: Type) -> Dict[str, Type[ActionModel]]: Dynamically loads all Action classes that match the specified action_type from the specified directory.
+        actions(path: str, action_type: Type) -> Dict[str, Type[ActionSchema]]: Dynamically loads all Action classes that match the specified action_type from the specified directory.
         dict(path: str = "actions") -> dict: Returns a dictionary containing the dictionary schemas for all ActionRunner classes.
         json(path: str = "actions", indent: int = None) -> str: Returns a JSON string containing the JSON schemas for all ActionRunner classes.
     """
@@ -31,16 +31,16 @@ class ActionRegistry():
         Returns:
             list[Type]: A list of valid action types.
         """
-        return [ActionModel, ActionRunner]
+        return [ActionSchema, ActionRunner]
 
     @staticmethod
-    def discover(path: str, action_type: Type[Any]) -> Dict[str, Type[ActionModel]]:
+    def discover(path: str, action_type: Type[Any]) -> Dict[str, Type[ActionSchema]]:
         """
         Load classes of specified action_type from directory.
 
         Args:
             path: Directory containing action classes
-            action_type: Type to match (ActionModel or ActionRunner)
+            action_type: Type to match (ActionSchema or ActionRunner)
 
         Raises:
             ValueError: If action_type is not a valid action type
@@ -54,7 +54,7 @@ class ActionRegistry():
         if action_type not in ActionRegistry.valid_action_types():
             raise ValueError(f"Invalid action type: {action_type}")
 
-        actions: Dict[str, Type[ActionModel]] = {}
+        actions: Dict[str, Type[ActionSchema]] = {}
         module_prefix = path.replace("/", ".")
 
         for filename in listdir(path):
@@ -67,16 +67,16 @@ class ActionRegistry():
         return actions
 
     @staticmethod
-    def actions(path: str, action_type: Type[Any]) -> Dict[str, Type[ActionModel]]:
+    def actions(path: str, action_type: Type[Any]) -> Dict[str, Type[ActionSchema]]:
         """
         Dynamically loads all Action classes that match the specified action_type from the specified directory.
 
         Args:
             path (str): Directory containing action classes
-            action_type (Type[Any]): Type to match (ActionModel or ActionRunner)
+            action_type (Type[Any]): Type to match (ActionSchema or ActionRunner)
 
         Returns:
-            Dict[str, Type[ActionModel]]: Dictionary of {discriminator: class}
+            Dict[str, Type[ActionSchema]]: Dictionary of {discriminator: class}
         """
         return ActionRegistry.discover(path, action_type)
 
@@ -94,7 +94,7 @@ class ActionRegistry():
         actions = ActionRegistry.discover(path, ActionRunner)
         result: dict[str, Any] = {}
         for action_class in actions.values():
-            result.update(action_class.model_dict())
+            result.update(action_class.to_dict())
         return result
 
     @staticmethod

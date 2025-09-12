@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, override
 from unittest import TestCase
 from unittest.mock import patch
 
-from core.action_model import ActionModel
+from core.action_schema import ActionSchema
 from core.action_registry import ActionRegistry
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
@@ -18,20 +18,20 @@ if TYPE_CHECKING:
 class TestActionRegistry(TestCase):
     """Test cases for ActionRegistry class."""
 
-    test_action_model: type[ActionModel]  # type: ignore
+    test_action_schema: type[ActionSchema]  # type: ignore
     test_action_runner: type[ActionRunner]  # type: ignore
 
     @override
     def setUp(self) -> None:
         """Set up test fixtures."""
         # Create test action classes
-        class TestActionModel(ActionModel):
+        class TestActionSchema(ActionSchema):
             name: str = "test"
 
             @classmethod
             @override
             def description(cls) -> str:
-                return "Test ActionModel"
+                return "Test ActionSchema"
 
         class TestActionRunner(ActionRunner):
             name: str = "test"
@@ -45,20 +45,20 @@ class TestActionRegistry(TestCase):
             async def run(self, client: "PlugboardClient", websocket: "ClientConnection") -> ActionResponse:
                 return ActionResponse(status_code = 200)
 
-        self.test_action_model: type[ActionModel] = TestActionModel
+        self.test_action_schema: type[ActionSchema] = TestActionSchema
         self.test_action_runner: type[ActionRunner] = TestActionRunner
 
     def test_valid_action_types(self) -> None:
         """Test valid_action_types returns correct types."""
         valid_types = ActionRegistry.valid_action_types()
 
-        self.assertIn(ActionModel, valid_types)
+        self.assertIn(ActionSchema, valid_types)
         self.assertIn(ActionRunner, valid_types)
         self.assertEqual(len(valid_types), 2)
 
     def test_discover_with_nonexistent_path(self) -> None:
         """Test discover with nonexistent path returns empty dict."""
-        result = ActionRegistry.discover("/nonexistent/path", ActionModel)
+        result = ActionRegistry.discover("/nonexistent/path", ActionSchema)
 
         self.assertEqual(result, {})
 
@@ -70,7 +70,7 @@ class TestActionRegistry(TestCase):
     def test_discover_with_empty_directory(self) -> None:
         """Test discover with empty directory returns empty dict."""
         with tempfile.TemporaryDirectory() as temp_dir:
-            result = ActionRegistry.discover(temp_dir, ActionModel)
+            result = ActionRegistry.discover(temp_dir, ActionSchema)
             self.assertEqual(result, {})
 
     def test_discover_with_python_files(self) -> None:
@@ -90,7 +90,7 @@ class TestActionRegistry(TestCase):
             with open(test_file, "w") as f:
                 f.write("This is not Python code")
 
-            result = ActionRegistry.discover(temp_dir, ActionModel)
+            result = ActionRegistry.discover(temp_dir, ActionSchema)
             self.assertEqual(result, {})
 
     def test_discover_ignores_init_files(self) -> None:
@@ -101,15 +101,15 @@ class TestActionRegistry(TestCase):
             with open(init_file, "w") as f:
                 f.write("# Empty init file")
 
-            result = ActionRegistry.discover(temp_dir, ActionModel)
+            result = ActionRegistry.discover(temp_dir, ActionSchema)
             self.assertEqual(result, {})
 
     def test_discover_filters_by_base_class(self) -> None:
         """Test discover only returns classes with correct base class."""
         # This test is simplified to avoid import issues with temporary directories
-        # Test discovering ActionModel classes
-        model_result = ActionRegistry.discover("actions", ActionModel)
-        self.assertIsInstance(model_result, dict)
+        # Test discovering ActionSchema classes
+        schema_result = ActionRegistry.discover("actions", ActionSchema)
+        self.assertIsInstance(schema_result, dict)
 
         # Test discovering ActionRunner classes
         runner_result = ActionRegistry.discover("actions", ActionRunner)
@@ -118,14 +118,14 @@ class TestActionRegistry(TestCase):
     def test_actions_method_calls_discover(self) -> None:
         """Test actions method calls discover with correct parameters."""
         with patch.object(ActionRegistry, 'discover') as mock_discover:
-            mock_discover.return_value = {"test": self.test_action_model}
+            mock_discover.return_value = {"test": self.test_action_schema}
 
-            result = ActionRegistry.actions("test_path", ActionModel)
+            result = ActionRegistry.actions("test_path", ActionSchema)
 
-            mock_discover.assert_called_once_with("test_path", ActionModel)
-            self.assertEqual(result, {"test": self.test_action_model})
+            mock_discover.assert_called_once_with("test_path", ActionSchema)
+            self.assertEqual(result, {"test": self.test_action_schema})
 
-    def test_dict_method_returns_schema_dict(self) -> None:
+    def test_dict_method_returns_to_dict(self) -> None:
         """Test dict method returns dictionary schema for ActionRunner classes."""
         with patch.object(ActionRegistry, 'discover') as mock_discover:
             mock_discover.return_value = {"TestActionRunner": self.test_action_runner}
@@ -174,7 +174,7 @@ class TestActionRegistry(TestCase):
         """Test discover handles import errors gracefully."""
         # This test is simplified to avoid import issues with temporary directories
         # Test with a non-existent directory
-        result = ActionRegistry.discover("/nonexistent/path", ActionModel)
+        result = ActionRegistry.discover("/nonexistent/path", ActionSchema)
         self.assertEqual(result, {})
 
     def test_discover_handles_module_without_classes(self) -> None:
@@ -182,7 +182,7 @@ class TestActionRegistry(TestCase):
         # This test is simplified to avoid import issues with temporary directories
         # Test with an empty directory
         with tempfile.TemporaryDirectory() as temp_dir:
-            result = ActionRegistry.discover(temp_dir, ActionModel)
+            result = ActionRegistry.discover(temp_dir, ActionSchema)
             self.assertEqual(result, {})
 
     def test_discover_with_nested_directories(self) -> None:
@@ -195,10 +195,10 @@ class TestActionRegistry(TestCase):
             test_file = os.path.join(subdir, "test_action.py")
             with open(test_file, "w") as f:
                 f.write("""
-from core.action_model import ActionModel
+from core.action_schema import ActionSchema
 from pydantic import Field
 
-class SubdirAction(ActionModel):
+class SubdirAction(ActionSchema):
     name: str = Field(description="Test field")
 
     @classmethod
@@ -207,7 +207,7 @@ class SubdirAction(ActionModel):
 """)
 
             # Should not find classes in subdirectories
-            result = ActionRegistry.discover(temp_dir, ActionModel)
+            result = ActionRegistry.discover(temp_dir, ActionSchema)
             self.assertEqual(result, {})
 
 

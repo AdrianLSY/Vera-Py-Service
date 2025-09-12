@@ -39,16 +39,16 @@ class TestRequestEvent(TestCase):
         # RequestEvent is always a subclass of ActionRunner by design
         self.assertIsInstance(RequestEvent, type)
 
-    def test_request_event_payload_inherits_from_action_model(self) -> None:
+    def test_request_event_payload_inherits_from_action_schema(self) -> None:
         """
-        Test that RequestEvent.Payload inherits from ActionModel.
+        Test that RequestEvent.Payload inherits from ActionSchema.
 
         Returns:
             None: This test does not return a value.
         """
-        from core.action_model import ActionModel
+        from core.action_schema import ActionSchema
 
-        # RequestEvent.Payload is always a subclass of ActionModel by design
+        # RequestEvent.Payload is always a subclass of ActionSchema by design
         self.assertIsInstance(RequestEvent.Payload, type)
 
     def test_request_event_has_required_fields(self) -> None:
@@ -134,14 +134,14 @@ class TestRequestEvent(TestCase):
 
         self.assertEqual(discriminator, "request")
 
-    def test_request_event_model_dict_structure(self) -> None:
+    def test_request_event_to_dict_structure(self) -> None:
         """
-        Test that RequestEvent model_dict returns correct structure.
+        Test that RequestEvent to_dict returns correct structure.
 
         Returns:
             None: This test does not return a value.
         """
-        result = RequestEvent.model_dict()
+        result = RequestEvent.to_dict()
 
         self.assertIn("RequestEvent", result)
         self.assertIn("description", result["RequestEvent"])
@@ -153,14 +153,14 @@ class TestRequestEvent(TestCase):
         self.assertIn("event", fields)
         self.assertIn("payload", fields)
 
-    def test_request_event_model_json(self) -> None:
+    def test_request_event_to_json(self) -> None:
         """
-        Test that RequestEvent model_json returns valid JSON.
+        Test that RequestEvent to_json returns valid JSON.
 
         Returns:
             None: This test does not return a value.
         """
-        json_str = RequestEvent.model_json()
+        json_str = RequestEvent.to_json()
 
         self.assertIsInstance(json_str, str)
 

@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 from websockets import ConnectionClosed
 
 from core.plugboard_client import PlugboardClient
-from models.service import Service
-from models.token import Token
+from schemas.service import Service
+from schemas.token import Token
 
 
 class TestPlugboardClient(TestCase):
@@ -341,9 +341,9 @@ class TestPlugboardClient(TestCase):
 
         asyncio.run(async_test())
 
-    def test_plugboard_client_model_validation(self) -> None:
+    def test_plugboard_client_schema_validation(self) -> None:
         """
-        Test PlugboardClient model validation.
+        Test PlugboardClient schema validation.
 
         Returns:
             None: This test does not return a value.
@@ -374,7 +374,7 @@ class TestPlugboardClient(TestCase):
             connected = True
         )
 
-        # Test basic model functionality instead of JSON serialization
+        # Test basic schema functionality instead of JSON serialization
         self.assertEqual(client.num_consumers, 3)
         self.assertTrue(client.connected)
 

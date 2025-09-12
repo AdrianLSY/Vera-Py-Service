@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Literal, override
 from pydantic import Field
 from websockets import ClientConnection
 
-from core.action_model import ActionModel
+from core.action_schema import ActionSchema
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
 
@@ -20,7 +20,7 @@ class PhxJoinEvent(ActionRunner):
         event (Literal["phx_join"]): A literal indicating the event type "phx_join".
         payload (Payload): The payload of the join event.
     """
-    class Payload(ActionModel):
+    class Payload(ActionSchema):
         """
         Represents the payload for a Phoenix join event.
         The payload is empty and is only used for the event.

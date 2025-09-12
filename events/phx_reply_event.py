@@ -3,11 +3,11 @@ from typing import TYPE_CHECKING, Annotated, Literal, Union, override
 from pydantic import Field
 from websockets import ClientConnection
 
-from core.action_model import ActionModel
+from core.action_schema import ActionSchema
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
-from models.service import Service
-from models.token import Token
+from schemas.service import Service
+from schemas.token import Token
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
@@ -22,7 +22,7 @@ class PhxReplyEvent(ActionRunner):
         event (Literal["phx_reply"]): A literal indicating the event type "phx_reply".
         payload (Union[PhxReplyOk, PhxReplyError]): The reply payload which is discriminated by the "status" field.
     """
-    class PhxReplyOk(ActionModel):
+    class PhxReplyOk(ActionSchema):
         """
         Represents a successful Phoenix reply event.
 
@@ -30,7 +30,7 @@ class PhxReplyEvent(ActionRunner):
             status (Literal["ok"]): A literal value "ok" indicating a successful response.
             response (Response): The successful reply payload.
         """
-        class Response(ActionModel):
+        class Response(ActionSchema):
             """
             Represents a successful reply response that contains service information.
 
@@ -56,7 +56,7 @@ class PhxReplyEvent(ActionRunner):
         def description(cls) -> str:
             return "Represents a successful Phoenix reply event."
 
-    class PhxReplyError(ActionModel):
+    class PhxReplyError(ActionSchema):
         """
         Represents an error Phoenix reply event.
 
@@ -64,7 +64,7 @@ class PhxReplyEvent(ActionRunner):
             status (Literal["error"]): A literal value "error" indicating an error response.
             response (Response): The error reply payload containing the reason for the error.
         """
-        class Response(ActionModel):
+        class Response(ActionSchema):
             """
             Represents an error reply response with a reason for the error.
 

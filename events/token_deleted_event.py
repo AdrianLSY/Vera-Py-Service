@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING, Literal, override
 from pydantic import Field
 from websockets import ClientConnection
 
-from core.action_model import ActionModel
+from core.action_schema import ActionSchema
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
-from models.token import Token
+from schemas.token import Token
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
@@ -21,7 +21,7 @@ class TokenDeletedEvent(ActionRunner):
         event (Literal["token_deleted"]): A literal indicating the event type "token_deleted".
         payload (Payload): The payload containing the token information.
     """
-    class Payload(ActionModel):
+    class Payload(ActionSchema):
         """
         Represents the payload for a token event.
 

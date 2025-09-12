@@ -5,12 +5,12 @@ from typing import Any, Type, cast
 from pydantic import BaseModel
 
 
-class ActionModel(BaseModel, ABC):
+class ActionSchema(BaseModel, ABC):
     """
-    Base class for action models.
-    The ActionModel is a base class for defining an action. It provides a common interface for defining actions and their respective fields.
+    Base class for action action_schemas.
+    The ActionSchema is a base class for defining an action. It provides a common interface for defining actions and their respective fields.
 
-    Subclasses of ActionModel must implement the description() method.
+    Subclasses of ActionSchema must implement the description() method.
     """
 
     @classmethod
@@ -36,12 +36,12 @@ class ActionModel(BaseModel, ABC):
         pass
 
     @classmethod
-    def model_dict(cls) -> dict[str, Any]:
+    def to_dict(cls) -> dict[str, Any]:
         """
-        Returns the model definition as a dictionary.
+        Returns the action_schema definition as a dictionary.
 
         Returns:
-            dict: The model definition as a dictionary.
+            dict: The action_schema definition as a dictionary.
         """
         def check_subclass(class_type: type | None, parent_cls: type) -> bool:
             if class_type is None:
@@ -56,21 +56,21 @@ class ActionModel(BaseModel, ABC):
         for field_name, field_schema in properties.items():
             field_type = field_schema.get("type")
 
-            # Handle nested ActionModel fields
+            # Handle nested ActionSchema fields
             if "$ref" in field_schema:
                 field_class = cls.model_fields[field_name].annotation
-                if check_subclass(field_class, ActionModel):
-                    # Explicitly cast field_class to Type[ActionModel]
-                    action_model_class = cast(Type[ActionModel], field_class)
+                if check_subclass(field_class, ActionSchema):
+                    # Explicitly cast field_class to Type[ActionSchema]
+                    action_schema_class = cast(Type[ActionSchema], field_class)
 
-                    # Now use action_model_class instead of field_class
+                    # Now use action_schema_class instead of field_class
                     nested_fields: dict[str, Any] = {}
-                    nested_fields["type"] = action_model_class.discriminator()
-                    nested_fields["description"] = action_model_class.description()
+                    nested_fields["type"] = action_schema_class.discriminator()
+                    nested_fields["description"] = action_schema_class.description()
                     nested_fields["fields"] = next(
                         iter(
                             loads(
-                                action_model_class.model_json()
+                                action_schema_class.to_json()
                             ).values()
                         )
                     )["fields"]
@@ -97,14 +97,14 @@ class ActionModel(BaseModel, ABC):
         }
 
     @classmethod
-    def model_json(cls, indent: int | None = None) -> str:
+    def to_json(cls, indent: int | None = None) -> str:
         """
-        Returns the model definition as a JSON schema.
+        Returns the action_schema definition as a JSON schema.
 
         Args:
             indent (int, optional): The indentation level for the JSON schema. Defaults to None.
 
         Returns:
-            str: The JSON schema for the action model.
+            str: The JSON schema for the action action_schema.
         """
-        return dumps(cls.model_dict(), indent = indent)
+        return dumps(cls.to_dict(), indent = indent)
