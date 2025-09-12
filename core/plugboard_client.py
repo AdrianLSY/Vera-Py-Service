@@ -8,8 +8,8 @@ from websockets import ClientConnection, ConnectionClosed, connect
 from core.action_registry import ActionRegistry
 from core.action_runner import ActionRunner
 from events.phx_join_event import PhxJoinEvent
-from models.service import Service
-from models.token import Token
+from schemas.service import Service
+from schemas.token import Token
 
 
 class PlugboardClient(BaseModel):
@@ -32,8 +32,8 @@ class PlugboardClient(BaseModel):
     token: Token = Field(default = Token())
     num_consumers: int = Field(default = 0)
     connected: bool = Field(default = False)
-    events: dict[str, Type[ActionRunner]] = Field(default_factory=lambda: ActionRegistry.discover("events", ActionRunner))
-    actions: dict[str, Type[ActionRunner]] = Field(default_factory=lambda: ActionRegistry.discover("actions", ActionRunner))
+    events: dict[str, Type[ActionRunner]] = Field(default_factory = lambda: ActionRegistry.discover("events", ActionRunner))
+    actions: dict[str, Type[ActionRunner]] = Field(default_factory = lambda: ActionRegistry.discover("actions", ActionRunner))
 
     async def __loop(self, websocket: ClientConnection) -> None:
         await websocket.send(PhxJoinEvent(topic = "service").model_dump_json())
@@ -71,6 +71,6 @@ class PlugboardClient(BaseModel):
         if self.connected:
             return
         self.token.value = token
-        async with connect(f"{websocket_url}?token={token}&actions={quote(dumps({k: v for action in self.actions.values() for k, v in action.model_dict().items()}))}") as websocket:
+        async with connect(f"{websocket_url}?token={token}&actions={quote(dumps({k: v for action in self.actions.values() for k, v in action.to_dict().items()}))}") as websocket:
             self.connected = True
             await self.__loop(websocket)

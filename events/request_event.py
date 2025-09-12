@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Literal, override
 from pydantic import Field
 from websockets import ClientConnection
 
-from core.action_model import ActionModel
+from core.action_schema import ActionSchema
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
 
@@ -21,7 +21,7 @@ class RequestEvent(ActionRunner):
         event (Literal["request"]): A literal indicating the event type "request".
         payload (Payload): The payload containing the request information.
     """
-    class Payload(ActionModel):
+    class Payload(ActionSchema):
         """
         Represents the payload for a request event.
 

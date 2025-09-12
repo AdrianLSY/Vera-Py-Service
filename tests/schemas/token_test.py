@@ -2,11 +2,11 @@ from datetime import datetime
 from typing import Any, override
 from unittest import TestCase
 
-from models.token import Token
+from schemas.token import Token
 
 
 class TestToken(TestCase):
-    """Test cases for Token model class."""
+    """Test cases for Token action_schema class."""
 
     token: Token  # type: ignore
 
@@ -15,16 +15,16 @@ class TestToken(TestCase):
         """Set up test fixtures."""
         self.token = Token()
 
-    def test_token_inherits_from_action_model(self) -> None:
+    def test_token_inherits_from_action_action_schema(self) -> None:
         """
-        Test that Token inherits from ActionModel.
+        Test that Token inherits from ActionSchema.
 
         Returns:
             None: This test does not return a value.
         """
-        from core.action_model import ActionModel
+        from core.action_schema import ActionSchema
 
-        # Token is always a subclass of ActionModel by design
+        # Token is always a subclass of ActionSchema by design
         self.assertIsInstance(Token, type)
 
     def test_token_has_required_fields(self) -> None:
@@ -79,14 +79,14 @@ class TestToken(TestCase):
 
         self.assertEqual(discriminator, "Token")
 
-    def test_token_model_dict_structure(self) -> None:
+    def test_token_to_dict_structure(self) -> None:
         """
-        Test that Token model_dict returns correct structure.
+        Test that Token to_dict returns correct structure.
 
         Returns:
             None: This test does not return a value.
         """
-        result = Token.model_dict()
+        result = Token.to_dict()
 
         self.assertIn("Token", result)
         self.assertIn("description", result["Token"])
@@ -100,14 +100,14 @@ class TestToken(TestCase):
         self.assertIn("inserted_at", fields)
         self.assertIn("expires_at", fields)
 
-    def test_token_model_json(self) -> None:
+    def test_token_to_json(self) -> None:
         """
-        Test that Token model_json returns valid JSON.
+        Test that Token to_json returns valid JSON.
 
         Returns:
             None: This test does not return a value.
         """
-        json_str = Token.model_json()
+        json_str = Token.to_json()
 
         self.assertIsInstance(json_str, str)
 
@@ -400,7 +400,7 @@ class TestToken(TestCase):
         Returns:
             None: This test does not return a value.
         """
-        # Pydantic models are not hashable by default
+        # Pydantic action_schemas are not hashable by default
         with self.assertRaises(TypeError):
             hash(self.token)
 

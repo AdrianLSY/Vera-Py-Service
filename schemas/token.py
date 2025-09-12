@@ -3,10 +3,10 @@ from typing import override
 
 from pydantic import Field
 
-from core.action_model import ActionModel
+from core.action_schema import ActionSchema
 
 
-class Token(ActionModel):
+class Token(ActionSchema):
     """
     Represents a token with a unique identifier, context, value, service id, and inserted and expiration date.
     The token defaults to all None values. The Token fields will be set when the PlugboardClient is connected.

@@ -40,10 +40,9 @@ class TestActionRunner(TestCase):
         self.test_runner_class: type[ActionRunner] = TestRunner
 
     def test_action_runner_inheritance(self) -> None:
-        """Test that ActionRunner inherits from ActionModel."""
-        from core.action_model import ActionModel
+        """Test that ActionRunner inherits from ActionSchema."""
 
-        # ActionRunner is always a subclass of ActionModel by design
+        # ActionRunner is always a subclass of ActionSchema by design
         self.assertIsInstance(ActionRunner, type)
 
     def test_action_runner_abstract_run_method(self) -> None:
@@ -84,9 +83,9 @@ class TestActionRunner(TestCase):
 
         self.assertEqual(description, "Test runner for unit testing")
 
-    def test_action_runner_model_dict(self) -> None:
-        """Test ActionRunner model_dict method."""
-        result = self.test_runner_class.model_dict()
+    def test_action_runner_to_dict(self) -> None:
+        """Test ActionRunner to_dict method."""
+        result = self.test_runner_class.to_dict()
 
         self.assertIn("TestRunner", result)
         self.assertIn("description", result["TestRunner"])
@@ -96,9 +95,9 @@ class TestActionRunner(TestCase):
         self.assertIn("name", fields)
         self.assertIn("value", fields)
 
-    def test_action_runner_model_json(self) -> None:
-        """Test ActionRunner model_json method."""
-        json_str = self.test_runner_class.model_json()
+    def test_action_runner_to_json(self) -> None:
+        """Test ActionRunner to_json method."""
+        json_str = self.test_runner_class.to_json()
 
         self.assertIsInstance(json_str, str)
 
@@ -161,34 +160,34 @@ class TestActionRunner(TestCase):
             # This should raise TypeError due to abstract method
             AbstractRunner()
 
-    def test_action_runner_with_nested_models(self) -> None:
-        """Test ActionRunner with nested ActionModel fields."""
+    def test_action_runner_with_nested_schemas(self) -> None:
+        """Test ActionRunner with nested ActionSchema fields."""
         from pydantic import Field
 
-        from core.action_model import ActionModel
+        from core.action_schema import ActionSchema
 
-        class NestedModel(ActionModel):
+        class NestedSchema(ActionSchema):
             nested_field: str = Field(description = "Nested field")
 
             @classmethod
             @override
             def description(cls) -> str:
-                return "Nested model"
+                return "Nested schema"
 
         class NestedRunner(ActionRunner):
-            nested: NestedModel = Field(description = "Nested model field")
+            nested: NestedSchema = Field(description = "Nested schema field")
 
             @classmethod
             @override
             def description(cls) -> str:
-                return "Runner with nested model"
+                return "Runner with nested schema"
 
             @override
             async def run(self, client: "PlugboardClient", websocket: "ClientConnection") -> ActionResponse:
                 return ActionResponse(status_code = 200)
 
-        # Test model_dict with nested fields
-        result = NestedRunner.model_dict()
+        # Test to_dict with nested fields
+        result = NestedRunner.to_dict()
 
         self.assertIn("NestedRunner", result)
         fields = result["NestedRunner"]["fields"]
@@ -196,7 +195,7 @@ class TestActionRunner(TestCase):
 
         # Check nested field structure
         nested_field = fields["nested"]
-        self.assertEqual(nested_field["type"], "NestedModel")
+        self.assertEqual(nested_field["type"], "NestedSchema")
         self.assertIn("fields", nested_field)
 
     def test_action_runner_validation(self) -> None:

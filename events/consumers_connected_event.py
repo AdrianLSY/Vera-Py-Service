@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Literal, override
 from pydantic import Field
 from websockets import ClientConnection
 
-from core.action_model import ActionModel
+from core.action_schema import ActionSchema
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
 
@@ -20,7 +20,7 @@ class ConsumerConnectedEvent(ActionRunner):
         event (Literal["num_consumers"]): A literal indicating the event type "num_consumers".
         payload (Payload): The payload containing the number of consumers connected to the service.
     """
-    class Payload(ActionModel):
+    class Payload(ActionSchema):
         """
         Represents the payload for a consumers connected event.
 

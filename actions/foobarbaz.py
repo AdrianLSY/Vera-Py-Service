@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, override
 from pydantic import Field
 from websockets import ClientConnection
 
-from core.action_model import ActionModel
+from core.action_schema import ActionSchema
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 This serves as an example action that demonstrates how to create a new action.
 """
 
-class Foo(ActionModel):
+class Foo(ActionSchema):
     foo: str = Field(description = "The foo value", default = "Foo")
     bar: str = Field(description = "The bar value", default = "Bar")
 
@@ -24,7 +24,7 @@ class Foo(ActionModel):
         return "This is a Foo test action"
 
 
-class Bar(ActionModel):
+class Bar(ActionSchema):
     foo: str = Field(description = "The foo value")
     bar: str = Field(description = "The bar value")
 
@@ -34,7 +34,7 @@ class Bar(ActionModel):
         return "This is a Bar test action"
 
 
-class Baz(ActionModel):
+class Baz(ActionSchema):
     foo: str | None = Field(description = "The foo value", default = None)
     bar: str | None = Field(description = "The bar value", default = None)
 

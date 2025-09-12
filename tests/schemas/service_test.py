@@ -2,11 +2,11 @@ from datetime import datetime
 from typing import Any, override
 from unittest import TestCase
 
-from models.service import Service
+from schemas.service import Service
 
 
 class TestService(TestCase):
-    """Test cases for Service model class."""
+    """Test cases for Service action_schema class."""
 
     service: Service  # type: ignore
 
@@ -20,16 +20,16 @@ class TestService(TestCase):
             updated_at = datetime(2023, 1, 1, 12, 0, 0)
         )
 
-    def test_service_inherits_from_action_model(self) -> None:
+    def test_service_inherits_from_action_action_schema(self) -> None:
         """
-        Test that Service inherits from ActionModel.
+        Test that Service inherits from ActionSchema.
 
         Returns:
             None: This test does not return a value.
         """
-        from core.action_model import ActionModel
+        from core.action_schema import ActionSchema
 
-        # Service is always a subclass of ActionModel by design
+        # Service is always a subclass of ActionSchema by design
         self.assertIsInstance(Service, type)
 
     def test_service_has_required_fields(self) -> None:
@@ -80,14 +80,14 @@ class TestService(TestCase):
 
         self.assertEqual(discriminator, "Service")
 
-    def test_service_model_dict_structure(self) -> None:
+    def test_service_to_dict_structure(self) -> None:
         """
-        Test that Service model_dict returns correct structure.
+        Test that Service to_dict returns correct structure.
 
         Returns:
             None: This test does not return a value.
         """
-        result = Service.model_dict()
+        result = Service.to_dict()
 
         self.assertIn("Service", result)
         self.assertIn("description", result["Service"])
@@ -99,14 +99,14 @@ class TestService(TestCase):
         self.assertIn("inserted_at", fields)
         self.assertIn("updated_at", fields)
 
-    def test_service_model_json(self) -> None:
+    def test_service_to_json(self) -> None:
         """
-        Test that Service model_json returns valid JSON.
+        Test that Service to_json returns valid JSON.
 
         Returns:
             None: This test does not return a value.
         """
-        json_str = Service.model_json()
+        json_str = Service.to_json()
 
         self.assertIsInstance(json_str, str)
 
@@ -313,7 +313,7 @@ class TestService(TestCase):
         Returns:
             None: This test does not return a value.
         """
-        # Pydantic models are not hashable by default
+        # Pydantic action_schemas are not hashable by default
         with self.assertRaises(TypeError):
             hash(self.service)
 

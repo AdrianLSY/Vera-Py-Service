@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING, Literal, override
 from pydantic import Field
 from websockets import ClientConnection
 
-from core.action_model import ActionModel
+from core.action_schema import ActionSchema
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
-from models.service import Service
+from schemas.service import Service
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
@@ -21,7 +21,7 @@ class ServiceUpdatedEvent(ActionRunner):
         event (Literal["service_updated"]): A literal indicating the event type "service_updated".
         payload (Payload): The payload containing updated service information.
     """
-    class Payload(ActionModel):
+    class Payload(ActionSchema):
         """
         Represents the payload for a service update event.
 
