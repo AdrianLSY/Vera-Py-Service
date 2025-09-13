@@ -1,7 +1,6 @@
 from core.database import base
-from sqlalchemy import Column, DateTime, Index, func, text
+from sqlalchemy import Column, DateTime, Index, func
 from sqlalchemy.dialects.postgresql import UUID
-from typing import Optional
 
 class Revocation(base):
     """
@@ -54,49 +53,3 @@ class Revocation(base):
             "created_at"
         ),
     )
-
-    @classmethod
-    def cleanup_expired_revocations(cls, db_session) -> int:
-        """
-        Remove expired revocation records from the database.
-        
-        This method deletes all revocation records where the expires_at timestamp
-        is in the past, helping to keep the revocations table clean and performant.
-        For high-volume systems, consider scheduling this as a background task.
-        
-        Parameters:
-            db_session: Database session to execute the cleanup.
-            
-        Returns:
-            int: Number of records deleted.
-            
-        Raises:
-            Exception: If database operation fails.
-        """
-        result = db_session.execute(
-            text("DELETE FROM revocations WHERE expires_at < NOW()")
-        )
-        return result.rowcount
-
-    @classmethod
-    def get_expired_count(cls, db_session) -> int:
-        """
-        Get the count of expired revocation records.
-        
-        This method counts how many revocation records have expired and could
-        be cleaned up, useful for monitoring and scheduling cleanup operations.
-        
-        Parameters:
-            db_session: Database session to execute the query.
-            
-        Returns:
-            int: Number of expired revocation records.
-            
-        Raises:
-            Exception: If database operation fails.
-        """
-        result = db_session.execute(
-            text("SELECT COUNT(*) FROM revocations WHERE expires_at < NOW()")
-        )
-        return result.scalar()
-
