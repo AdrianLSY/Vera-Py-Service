@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:17.6-alpine3.22
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - ./volumes/postgres/data:/var/lib/postgresql/data
+      - ./volumes/postgres/init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_USER}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_USER}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  auth:
+    build: .
+    environment:
+      WEBSOCKET_URL: ${WEBSOCKET_URL}
+      TOKEN: ${TOKEN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped

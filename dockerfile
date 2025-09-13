@@ -1,4 +1,4 @@
-FROM python:3.13.6-alpine
+FROM python:3.13.7-alpine3.22
 
 # Set Python to use UTF-8 encoding
 ENV PYTHONUNBUFFERED=1

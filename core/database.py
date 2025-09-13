@@ -37,25 +37,20 @@ class Database:
         Initialize the database connection using environment variables.
         
         Environment Variables:
-            DB_HOST (str): Database host. Defaults to 'localhost'.
-            DB_PORT (str): Database port. Defaults to '5432'.
-            DB_USERNAME (str): Database username. Defaults to 'postgres'.
-            DB_PASSWORD (str): Database password. Defaults to 'postgres'.
-            DB_NAME (str): Database name. Defaults to 'postgres'.
+            POSTGRES_HOST (str): Database host.
+            POSTGRES_PORT (str): Database port.
+            POSTGRES_USER (str): Database username.
+            POSTGRES_PASSWORD (str): Database password.
+            POSTGRES_DB (str): Database name.
             
         Raises:
             ValueError: If required environment variables are missing or invalid.
         """
-        host = getenv("DB_HOST", "localhost")
-        port_str = getenv("DB_PORT", "5432")
-        username = getenv("DB_USERNAME", "postgres")
-        password = getenv("DB_PASSWORD", "postgres")
-        database = getenv("DB_NAME", "postgres")
-        
-        try:
-            port = int(port_str)
-        except ValueError:
-            raise ValueError(f"Invalid DB_PORT value: {port_str}. Must be a valid integer.")
+        host = getenv("POSTGRES_HOST")
+        port = getenv("POSTGRES_PORT")
+        username = getenv("POSTGRES_USER")
+        password = getenv("POSTGRES_PASSWORD")
+        database = getenv("POSTGRES_DB")
         
         database_url = f"postgresql://{username}:{password}@{host}:{port}/{database}"
         self.__engine = create_engine(database_url)
