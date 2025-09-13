@@ -15,7 +15,9 @@ if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
 
 class Show(ActionRunner):
-    jwt: str = Field(description = "The JWT token to authenticate")
+    jwt: str = Field(
+        description = "The JWT token to authenticate"
+    )
 
     @classmethod
     @override

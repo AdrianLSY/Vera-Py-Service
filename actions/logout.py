@@ -5,6 +5,7 @@ from websockets import ClientConnection
 from jwt import decode, InvalidTokenError
 from os import getenv
 from sqlalchemy.exc import IntegrityError
+from datetime import datetime, UTC
 
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
@@ -15,7 +16,9 @@ if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
 
 class Logout(ActionRunner):
-    jwt: str = Field(description = "The JWT token to revoke")
+    jwt: str = Field(
+        description = "The JWT token to revoke"
+    )
 
     @classmethod
     @override
@@ -44,12 +47,24 @@ class Logout(ActionRunner):
             )
             
             jti = payload.get("jti")
+            exp = payload.get("exp")
             
             if not jti:
                 return ActionResponse(
                     status_code = 401,
                     message = "Invalid token: missing JTI claim"
                 )
+            
+            # Convert expiration timestamp to datetime if present
+            expires_at = None
+            if exp is not None:
+                try:
+                    expires_at = datetime.fromtimestamp(exp, tz = UTC)
+                except (ValueError, OSError) as e:
+                    return ActionResponse(
+                        status_code = 401,
+                        message = f"Invalid token: invalid expiration time - {str(e)}"
+                    )
                 
         except InvalidTokenError as e:
             return ActionResponse(
@@ -65,7 +80,10 @@ class Logout(ActionRunner):
         # add to revocations table
         try:
             with database.transaction() as db:
-                revocation = Revocation(jti = jti)
+                revocation = Revocation(
+                    jti = jti,
+                    expires_at = expires_at
+                )
                 db.add(revocation)
                 db.flush()  # ensure the record is created
                 
