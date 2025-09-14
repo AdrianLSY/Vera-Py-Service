@@ -1,9 +1,6 @@
-from os import environ
 from subprocess import run
 from sys import executable
 from typing import Dict, List
-
-environ["ENVIRONMENT"] = "test"
 
 def run_test_module(module_path: str) -> bool:
     """
@@ -38,11 +35,17 @@ def main() -> None:
         "tests.core.action_response_test",
         "tests.core.action_runner_test",
         "tests.core.action_registry_test",
+        "tests.core.database_test",
         "tests.core.plugboard_client_test",
         "tests.events.request_event_test",
         "tests.events.phx_join_event_test",
         "tests.schemas.service_test",
-        "tests.schemas.token_test"
+        "tests.schemas.token_test",
+        "tests.actions.edit_test",
+        "tests.actions.login_test",
+        "tests.actions.logout_test",
+        "tests.actions.register_test",
+        "tests.actions.show_test"
     ]
 
     print("Running all tests...")

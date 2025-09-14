@@ -1,5 +1,6 @@
 from asyncio import run
 from os import getenv
+from core.database import database
 
 from core.plugboard_client import PlugboardClient
 
@@ -9,6 +10,28 @@ if __name__ == "__main__":
 
     if websocket_url is None or token is None:
         raise ValueError("WEBSOCKET_URL and TOKEN environment variables must be set")
+
+    # Determine database based on environment
+    environment = getenv("ENVIRONMENT", "test")
+    
+    if environment == "development":
+        db = getenv("POSTGRES_DB_DEVELOPMENT")
+    elif environment == "production":
+        db = getenv("POSTGRES_DB_PRODUCTION")
+    else:  # test environment
+        db = getenv("POSTGRES_DB_TEST")
+    
+    if db is None:
+        raise ValueError(f"Database name not configured for environment: {environment}")
+
+    database.initialize(
+        host = getenv("POSTGRES_HOST"),
+        port = getenv("POSTGRES_PORT"),
+        username = getenv("POSTGRES_USER"),
+        password = getenv("POSTGRES_PASSWORD"),
+        database = db
+    )
+    database.migrate()
 
     run(
         PlugboardClient().connect(
