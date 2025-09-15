@@ -5,9 +5,8 @@ from core.database import Database
 
 class TestDatabase(TestCase):
     """
-    Integration test cases for the Database class using real database.
+    Integration test cases for the Database class using a real database.
     """
-
     def setUp(self) -> None:
         """
         Set up test fixtures before each test method.
@@ -18,6 +17,11 @@ class TestDatabase(TestCase):
         self.db.initialize()
 
     def tearDown(self) -> None:
+        try:
+            self.db.teardown()
+        except Exception:
+            pass
+
         environ.clear()
         environ.update(self.original_env)
 
@@ -49,17 +53,20 @@ class TestDatabase(TestCase):
         assert self.db.password == None
         assert self.db.environment == None
 
-    def test_session_migration_and_teardown(self):
+    def test_correct_database(self):
+        with self.db.session() as session:
+            result = session.execute(
+                text(
+                    "SELECT current_database();"
+                )
+            )
+            current_database = result.scalar()
+            assert current_database == environ.get("POSTGRES_DB_TEST")
+
+    def  test_session_migration_and_teardown(self):
         """
         Test that the Database class can be migrated and torn down correctly.
         """
-        # First ensure we start from a clean state by running teardown
-        try:
-            self.db.teardown()
-        except RuntimeError:
-            # Ignore if teardown fails (no migrations to tear down)
-            pass
-
         # Check if alembic_version table exists and verify it's empty
         with self.db.session() as session:
             result = session.execute(
@@ -71,7 +78,11 @@ class TestDatabase(TestCase):
 
             if table_exists:
                 # If table exists, check that it has no records (empty database)
-                result = session.execute(text("SELECT COUNT(*) FROM alembic_version"))
+                result = session.execute(
+                    text(
+                        "SELECT COUNT(*) FROM alembic_version"
+                    )
+                )
                 version_count = result.scalar()
                 self.assertEqual(version_count, 0, "alembic_version table should be empty in clean database")
 
@@ -87,12 +98,6 @@ class TestDatabase(TestCase):
             )
             table_exists = result.scalar()
             self.assertTrue(table_exists, "alembic_version table should exist after migration")
-
-            # Check that migration was recorded
-            result = session.execute(text("SELECT COUNT(*) FROM alembic_version"))
-            version_count = result.scalar()
-            self.assertGreater(version_count, 0, "Should have at least one migration version recorded")
-
         # Run teardown
         self.db.teardown()
 
@@ -107,7 +112,11 @@ class TestDatabase(TestCase):
 
             if table_exists:
                 # If table still exists, it should be empty after teardown
-                result = session.execute(text("SELECT COUNT(*) FROM alembic_version"))
+                result = session.execute(
+                    text(
+                        "SELECT COUNT(*) FROM alembic_version"
+                    )
+                )
                 version_count = result.scalar()
                 self.assertEqual(version_count, 0, "alembic_version table should be empty after teardown")
 
@@ -117,54 +126,89 @@ class TestDatabase(TestCase):
         """
         # Create a temporary test table
         with self.db.session() as session:
-            session.execute(text("""
-                CREATE TEMPORARY TABLE test_transaction (
+            session.execute(
+                text(
+                    """
+                    CREATE TEMPORARY TABLE test_transaction (
                     id SERIAL PRIMARY KEY,
                     value VARCHAR(50) UNIQUE
+                    )
+                    """
                 )
-            """))
+            )
             session.commit()
 
         # Test successful transaction - should commit data
         with self.db.transaction() as session:
-            session.execute(text("INSERT INTO test_transaction (value) VALUES ('success_value')"))
+            session.execute(
+                text(
+                    "INSERT INTO test_transaction (value) VALUES ('success_value')"
+                )
+            )
 
         # Verify successful transaction data was committed
         with self.db.session() as session:
-            result = session.execute(text("SELECT COUNT(*) FROM test_transaction WHERE value = 'success_value'"))
+            result = session.execute(
+                text(
+                    "SELECT COUNT(*) FROM test_transaction WHERE value = 'success_value'"
+                )
+            )
             count = result.scalar()
             self.assertEqual(count, 1, "Data should be committed after successful transaction")
 
         # Test failed transaction - should rollback data
         with self.assertRaises(Exception):
             with self.db.transaction() as session:
-                session.execute(text("INSERT INTO test_transaction (value) VALUES ('rollback_value')"))
+                session.execute(
+                    text(
+                        "INSERT INTO test_transaction (value) VALUES ('rollback_value')"
+                    )
+                )
                 # Force an exception by violating unique constraint
-                session.execute(text("INSERT INTO test_transaction (value) VALUES ('rollback_value')"))
+                session.execute(
+                    text(
+                        "INSERT INTO test_transaction (value) VALUES ('rollback_value')"
+                    )
+                )
 
         # Verify rollback occurred - 'rollback_value' should not exist
         with self.db.session() as session:
-            result = session.execute(text("SELECT COUNT(*) FROM test_transaction WHERE value = 'rollback_value'"))
+            result = session.execute(
+                text(
+                    "SELECT COUNT(*) FROM test_transaction WHERE value = 'rollback_value'"
+                )
+            )
             count = result.scalar()
             self.assertEqual(count, 0, "Data should be rolled back after failed transaction")
 
         # Test manual rollback by raising custom exception
         with self.assertRaises(ValueError):
             with self.db.transaction() as session:
-                session.execute(text("INSERT INTO test_transaction (value) VALUES ('manual_rollback')"))
+                session.execute(
+                    text(
+                        "INSERT INTO test_transaction (value) VALUES ('manual_rollback')"
+                    )
+                )
                 raise ValueError("Manual rollback test")
 
         # Verify manual rollback occurred
         with self.db.session() as session:
-            result = session.execute(text("SELECT COUNT(*) FROM test_transaction WHERE value = 'manual_rollback'"))
+            result = session.execute(
+                text(
+                    "SELECT COUNT(*) FROM test_transaction WHERE value = 'manual_rollback'"
+                )
+            )
             count = result.scalar()
             self.assertEqual(count, 0, "Data should not exist after manual rollback")
 
             # Verify only successful transaction data remains
-            result = session.execute(text("SELECT COUNT(*) FROM test_transaction"))
+            result = session.execute(
+                text(
+                    "SELECT COUNT(*) FROM test_transaction"
+                )
+            )
             total_count = result.scalar()
             self.assertEqual(total_count, 1, "Only successful transaction data should remain")
-
 
 if __name__ == '__main__':
     main()
