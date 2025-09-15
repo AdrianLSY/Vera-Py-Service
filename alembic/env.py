@@ -15,24 +15,24 @@ from core.database import base
 def import_all_models() -> None:
     """
     Automatically discover and import all model classes from the models/ directory.
-    
+
     This function scans the models directory for Python files and imports them,
     ensuring all SQLAlchemy models are registered with the metadata for Alembic.
     """
     models_dir = Path(__file__).parent.parent / "models"
-    
+
     if not models_dir.exists():
         return
-    
+
     # Get all Python files in the models directory
     for model_file in models_dir.glob("*.py"):
         # Skip __init__.py and __pycache__ files
         if model_file.name.startswith("__"):
             continue
-            
+
         # Convert file path to module name
         module_name = f"models.{model_file.stem}"
-        
+
         try:
             # Import the module
             importlib.import_module(module_name)
@@ -42,35 +42,44 @@ def import_all_models() -> None:
 
 def get_database_url() -> str:
     """
-    Get the database URL from environment variables.
-    
+    Get the database URL from alembic config or environment variables.
+
+    First tries to use the sqlalchemy.url from the alembic configuration.
+    If not available, falls back to constructing URL from environment variables.
+
     Returns:
         str: The database URL for PostgreSQL connection.
-        
+
     Raises:
         ValueError: If required environment variables are missing.
     """
+    # First, try to get URL from alembic config
+    config_url = context.config.get_main_option("sqlalchemy.url")
+    if config_url:
+        return config_url
+
+    # Fall back to environment variables
     host = getenv("POSTGRES_HOST")
     port = getenv("POSTGRES_PORT")
     username = getenv("POSTGRES_USER")
     password = getenv("POSTGRES_PASSWORD")
-    
+
     if not all([host, port, username, password]):
         raise ValueError("Missing required database environment variables")
-    
+
     # Determine database based on environment
     environment = getenv("ENVIRONMENT", "test")
-    
+
     if environment == "development":
         database = getenv("POSTGRES_DB_DEVELOPMENT")
     elif environment == "production":
         database = getenv("POSTGRES_DB_PRODUCTION")
     else:  # test environment
         database = getenv("POSTGRES_DB_TEST")
-    
+
     if database is None:
         raise ValueError(f"Database name not configured for environment: {environment}")
-    
+
     return f"postgresql://{username}:{password}@{host}:{port}/{database}"
 
 

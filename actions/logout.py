@@ -27,7 +27,7 @@ class Logout(ActionRunner):
 
     @override
     async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
-        
+
         # decode and validate JWT
         secret = getenv("JWT_SECRET")
         if not secret:
@@ -45,16 +45,16 @@ class Logout(ActionRunner):
                 audience = getenv("JWT_AUDIENCE"),
                 issuer = getenv("JWT_ISSUER")
             )
-            
+
             jti = payload.get("jti")
             exp = payload.get("exp")
-            
+
             if not jti:
                 return ActionResponse(
                     status_code = 401,
                     message = "Invalid token: missing JTI claim"
                 )
-            
+
             # Convert expiration timestamp to datetime if present
             expires_at = None
             if exp is not None:
@@ -65,7 +65,7 @@ class Logout(ActionRunner):
                         status_code = 401,
                         message = f"Invalid token: invalid expiration time - {str(e)}"
                     )
-                
+
         except InvalidTokenError as e:
             return ActionResponse(
                 status_code = 401,
@@ -86,7 +86,7 @@ class Logout(ActionRunner):
                 )
                 db.add(revocation)
                 db.flush()  # ensure the record is created
-                
+
         except IntegrityError:
             # JTI already exists in revocations (already revoked)
             return ActionResponse(

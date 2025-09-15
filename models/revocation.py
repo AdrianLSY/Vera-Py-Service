@@ -28,8 +28,7 @@ class Revocation(base):
     jti = Column(
         UUID(as_uuid = True),
         primary_key = True,
-        nullable = False,
-        index = True
+        nullable = False
     )
     created_at = Column(
         DateTime(timezone = True),

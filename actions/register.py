@@ -54,7 +54,7 @@ class Register(ActionRunner):
         description = "Sets the JWT not before date in unix timestamp",
         default = None
     )
-    
+
     expire_at: Union[int, None] = Field(
         description = "Sets the JWT expiration date in unix timestamp",
         default = None
@@ -65,27 +65,27 @@ class Register(ActionRunner):
     def validate_phone_number(cls, v: str) -> str:
         """
         Validate and format phone number to E.164 standard.
-        
+
         Parameters:
             v (str): The phone number in any format.
-            
+
         Returns:
             str: The phone number in E.164 format.
-            
+
         Raises:
             ValueError: If the phone number is invalid.
         """
         try:
             # Parse the phone number
             parsed_number = phonenumbers.parse(v, None)
-            
+
             # Check if it's a valid number
             if not phonenumbers.is_valid_number(parsed_number):
                 raise ValueError("Invalid phone number")
-            
+
             # Format to E.164
             return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.E164)
-            
+
         except NumberParseException as e:
             raise ValueError(f"Invalid phone number format: {str(e)}")
 
@@ -93,10 +93,10 @@ class Register(ActionRunner):
     def validate_not_before_before_expire_at(self) -> 'Register':
         """
         Validate that not_before is before expire_at if both are provided.
-        
+
         Returns:
             Register: The validated instance.
-            
+
         Raises:
             ValueError: If not_before is after expire_at.
         """
@@ -111,7 +111,7 @@ class Register(ActionRunner):
 
     @override
     async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
-        
+
         # insert user
         try:
             with database.transaction() as db:

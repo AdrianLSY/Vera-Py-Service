@@ -26,7 +26,7 @@ class Show(ActionRunner):
 
     @override
     async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
-        
+
         # decode and validate JWT
         secret = getenv("JWT_SECRET")
         if not secret:
@@ -44,16 +44,16 @@ class Show(ActionRunner):
                 audience = getenv("JWT_AUDIENCE"),
                 issuer = getenv("JWT_ISSUER")
             )
-            
+
             jti = claims.get("jti")
             user_id = claims.get("sub")
-            
+
             if not jti or not user_id:
                 return ActionResponse(
                     status_code = 401,
                     message = "Invalid token: missing required claims"
                 )
-                
+
         except InvalidTokenError as e:
             return ActionResponse(
                 status_code = 401,
@@ -73,25 +73,25 @@ class Show(ActionRunner):
                 ).filter(
                     Revocation.jti == jti
                 ).first()
-                
+
                 if revoked:
                     return ActionResponse(
                         status_code = 401,
                         message = "Token has been revoked"
                     )
-                
+
                 # get user details
                 user = db.query(User).filter(
                     User.id == user_id,
                     User.deleted_at.is_(None)
                 ).first()
-                
+
                 if not user:
                     return ActionResponse(
                         status_code = 404,
                         message = "User not found"
                     )
-                
+
         except Exception as e:
             return ActionResponse(
                 status_code = 500,

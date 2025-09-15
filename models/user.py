@@ -4,12 +4,12 @@ from sqlalchemy import Column, Integer, String, DateTime, Index, func
 class User(base):
     """
     Model for application users.
-    
+
     This model stores information about registered users, including their
     login credentials, contact details, and lifecycle timestamps. It enforces
     uniqueness constraints on username, email, and phone number to ensure
     account integrity. Soft deletion is supported via the deleted_at field.
-    
+
     Attributes:
         id (int): Primary key, auto-incrementing user identifier.
         username (str): Unique username for login and identification.
@@ -20,7 +20,7 @@ class User(base):
         created_at (datetime): Timestamp when the user record was created.
         updated_at (datetime): Timestamp of the last update.
         deleted_at (datetime | None): Nullable timestamp for soft deletion.
-    
+
     Indexes:
         - username, email, phone_number (for uniqueness and fast lookup)
         - deleted_at (for filtering out active vs. deleted users)

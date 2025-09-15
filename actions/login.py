@@ -51,7 +51,7 @@ class Login(ActionRunner):
         description = "The JWT not before date in unix timestamp",
         default = None
     )
-    
+
     expire_at: Union[int, None] = Field(
         description = "The JWT expiration date in unix timestamp",
         default = None
@@ -62,30 +62,30 @@ class Login(ActionRunner):
     def validate_phone_number(cls, v: Union[str, None]) -> Union[str, None]:
         """
         Validate and format phone number to E.164 standard.
-        
+
         Parameters:
             v (Union[str, None]): The phone number in any format, or None.
-            
+
         Returns:
             Union[str, None]: The phone number in E.164 format, or None.
-            
+
         Raises:
             ValueError: If the phone number is invalid.
         """
         if v is None:
             return None
-            
+
         try:
             # Parse the phone number
             parsed_number = phonenumbers.parse(v, None)
-            
+
             # Check if it's a valid number
             if not phonenumbers.is_valid_number(parsed_number):
                 raise ValueError("Invalid phone number")
-            
+
             # Format to E.164
             return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.E164)
-            
+
         except NumberParseException as e:
             raise ValueError(f"Invalid phone number format: {str(e)}")
 
@@ -93,10 +93,10 @@ class Login(ActionRunner):
     def validate_not_before_before_expire_at(self) -> 'Login':
         """
         Validate that not_before is before expire_at if both are provided.
-        
+
         Returns:
             Login: The validated instance.
-            
+
         Raises:
             ValueError: If not_before is after expire_at.
         """
@@ -111,20 +111,20 @@ class Login(ActionRunner):
 
     @override
     async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
-        
+
         # validate that exactly one identifier is provided
         identifier_count = sum([
             self.username is not None,
             self.email is not None,
             self.phone_number is not None
         ])
-        
+
         if identifier_count == 0:
             return ActionResponse(
                 status_code = 400,
                 message = "Exactly one identifier (username, email, or phone_number) must be provided"
             )
-        
+
         if identifier_count > 1:
             return ActionResponse(
                 status_code = 400,
@@ -150,13 +150,13 @@ class Login(ActionRunner):
                         User.phone_number == self.phone_number,
                         User.deleted_at.is_(None)
                     ).first()
-                
+
                 if user is None:
                     return ActionResponse(
                         status_code = 404,
                         message = "User not found"
                     )
-                
+
                 # verify password
                 if not checkpw(
                     self.password.encode("utf-8"),
@@ -166,9 +166,9 @@ class Login(ActionRunner):
                         status_code = 401,
                         message = "Invalid password"
                     )
-                
+
                 user_id = user.id
-                
+
         except Exception as e:
             return ActionResponse(
                 status_code = 500,
