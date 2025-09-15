@@ -49,7 +49,7 @@ class TestDatabase(TestCase):
         assert self.db.password == None
         assert self.db.environment == None
 
-    def test_migration_and_teardown(self):
+    def test_session_migration_and_teardown(self):
         """
         Test that the Database class can be migrated and torn down correctly.
         """
@@ -110,6 +110,60 @@ class TestDatabase(TestCase):
                 result = session.execute(text("SELECT COUNT(*) FROM alembic_version"))
                 version_count = result.scalar()
                 self.assertEqual(version_count, 0, "alembic_version table should be empty after teardown")
+
+    def test_transaction(self):
+        """
+        Test that transactions handle both success and failure scenarios correctly.
+        """
+        # Create a temporary test table
+        with self.db.session() as session:
+            session.execute(text("""
+                CREATE TEMPORARY TABLE test_transaction (
+                    id SERIAL PRIMARY KEY,
+                    value VARCHAR(50) UNIQUE
+                )
+            """))
+            session.commit()
+
+        # Test successful transaction - should commit data
+        with self.db.transaction() as session:
+            session.execute(text("INSERT INTO test_transaction (value) VALUES ('success_value')"))
+
+        # Verify successful transaction data was committed
+        with self.db.session() as session:
+            result = session.execute(text("SELECT COUNT(*) FROM test_transaction WHERE value = 'success_value'"))
+            count = result.scalar()
+            self.assertEqual(count, 1, "Data should be committed after successful transaction")
+
+        # Test failed transaction - should rollback data
+        with self.assertRaises(Exception):
+            with self.db.transaction() as session:
+                session.execute(text("INSERT INTO test_transaction (value) VALUES ('rollback_value')"))
+                # Force an exception by violating unique constraint
+                session.execute(text("INSERT INTO test_transaction (value) VALUES ('rollback_value')"))
+
+        # Verify rollback occurred - 'rollback_value' should not exist
+        with self.db.session() as session:
+            result = session.execute(text("SELECT COUNT(*) FROM test_transaction WHERE value = 'rollback_value'"))
+            count = result.scalar()
+            self.assertEqual(count, 0, "Data should be rolled back after failed transaction")
+
+        # Test manual rollback by raising custom exception
+        with self.assertRaises(ValueError):
+            with self.db.transaction() as session:
+                session.execute(text("INSERT INTO test_transaction (value) VALUES ('manual_rollback')"))
+                raise ValueError("Manual rollback test")
+
+        # Verify manual rollback occurred
+        with self.db.session() as session:
+            result = session.execute(text("SELECT COUNT(*) FROM test_transaction WHERE value = 'manual_rollback'"))
+            count = result.scalar()
+            self.assertEqual(count, 0, "Data should not exist after manual rollback")
+
+            # Verify only successful transaction data remains
+            result = session.execute(text("SELECT COUNT(*) FROM test_transaction"))
+            total_count = result.scalar()
+            self.assertEqual(total_count, 1, "Only successful transaction data should remain")
 
 
 if __name__ == '__main__':
