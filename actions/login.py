@@ -35,11 +35,6 @@ class Login(ActionRunner):
         default = None
     )
 
-    phone_number: Union[str, None] = Field(
-        description = "The phone number in any format (will be converted to E.164)",
-        default = None
-    )
-
     password: constr(
         min_length = getenv("MIN_PASSWORD_LENGTH"),
         max_length = getenv("MAX_PASSWORD_LENGTH")
@@ -52,57 +47,10 @@ class Login(ActionRunner):
         default = None
     )
 
-    expire_at: Union[int, None] = Field(
+    expires_at: Union[int, None] = Field(
         description = "The JWT expiration date in unix timestamp",
         default = None
     )
-
-    @field_validator('phone_number')
-    @classmethod
-    def validate_phone_number(cls, v: Union[str, None]) -> Union[str, None]:
-        """
-        Validate and format phone number to E.164 standard.
-
-        Parameters:
-            v (Union[str, None]): The phone number in any format, or None.
-
-        Returns:
-            Union[str, None]: The phone number in E.164 format, or None.
-
-        Raises:
-            ValueError: If the phone number is invalid.
-        """
-        if v is None:
-            return None
-
-        try:
-            # Parse the phone number
-            parsed_number = phonenumbers.parse(v, None)
-
-            # Check if it's a valid number
-            if not phonenumbers.is_valid_number(parsed_number):
-                raise ValueError("Invalid phone number")
-
-            # Format to E.164
-            return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.E164)
-
-        except NumberParseException as e:
-            raise ValueError(f"Invalid phone number format: {str(e)}")
-
-    @model_validator(mode = 'after')
-    def validate_not_before_before_expire_at(self) -> 'Login':
-        """
-        Validate that not_before is before expire_at if both are provided.
-
-        Returns:
-            Login: The validated instance.
-
-        Raises:
-            ValueError: If not_before is after expire_at.
-        """
-        if self.not_before is not None and self.expire_at is not None and self.not_before > self.expire_at:
-            raise ValueError("Not before date must be before expiration date")
-        return self
 
     @classmethod
     @override
@@ -116,7 +64,6 @@ class Login(ActionRunner):
         identifier_count = sum([
             self.username is not None,
             self.email is not None,
-            self.phone_number is not None
         ])
 
         if identifier_count == 0:
@@ -140,14 +87,9 @@ class Login(ActionRunner):
                         User.username == self.username,
                         User.deleted_at.is_(None)
                     ).first()
-                elif self.email is not None:
+                else:
                     user = db.query(User).filter(
                         User.email == self.email,
-                        User.deleted_at.is_(None)
-                    ).first()
-                else:  # phone_number is not None
-                    user = db.query(User).filter(
-                        User.phone_number == self.phone_number,
                         User.deleted_at.is_(None)
                     ).first()
 
@@ -192,8 +134,8 @@ class Login(ActionRunner):
         }
         if self.not_before is not None:
             claims["nbf"] = int(self.not_before)
-        if self.expire_at is not None:
-            claims["exp"] = int(self.expire_at)
+        if self.expires_at is not None:
+            claims["exp"] = int(self.expires_at)
 
         return ActionResponse(
             status_code = 200,
@@ -203,6 +145,6 @@ class Login(ActionRunner):
                     secret,
                     algorithm = getenv("JWT_ALGORITHM")
                 ),
-                "expires_at": self.expire_at,
+                "expires_at": self.expires_at,
             },
         )

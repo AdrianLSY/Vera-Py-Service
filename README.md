@@ -116,7 +116,7 @@ Creates a new user account and returns a JWT token:
 - `phone_number` (str): Phone number in any format (converted to E.164)
 - `password` (str): User password (configurable length limits)
 - `not_before` (int, optional): JWT not-before timestamp
-- `expire_at` (int, optional): JWT expiration timestamp
+- `expires_at` (int, optional): JWT expiration timestamp
 
 **Features:**
 - Automatic phone number validation and E.164 formatting
@@ -135,11 +135,11 @@ Authenticates an existing user and returns a JWT token:
 
 **Input Parameters:**
 - `username` (str, optional): Username for authentication
-- `email` (str, optional): Email for authentication  
+- `email` (str, optional): Email for authentication
 - `phone_number` (str, optional): Phone number for authentication
 - `password` (str): User password
 - `not_before` (int, optional): JWT not-before timestamp
-- `expire_at` (int, optional): JWT expiration timestamp
+- `expires_at` (int, optional): JWT expiration timestamp
 
 **Features:**
 - Flexible authentication (username, email, or phone number)
@@ -188,7 +188,6 @@ Revokes a JWT token by adding it to the revocation list:
 The authentication system requires several environment variables:
 
 - `JWT_SECRET`: Secret key for JWT signing
-- `JWT_ALGORITHM`: JWT signing algorithm (default: HS256)
 - `JWT_ISSUER`: JWT issuer claim
 - `JWT_AUDIENCE`: JWT audience claim
 - `MIN_USERNAME_LENGTH`: Minimum username length
@@ -222,7 +221,7 @@ The authentication system requires several environment variables:
    ```bash
    # Start PostgreSQL with Docker Compose
    docker compose up -d postgres
-   
+
    # Or set up a local PostgreSQL instance
    # Create database and user as needed
    ```
@@ -232,19 +231,18 @@ The authentication system requires several environment variables:
    # Core service configuration
    export WEBSOCKET_URL="ws://localhost:4000/websocket"
    export TOKEN="your_plugboard_token"
-   
+
    # Database configuration
    export POSTGRES_USER="auth"
    export POSTGRES_PASSWORD="your_secure_password"
    export POSTGRES_DB="auth"
    export POSTGRES_PORT="5432"
-   
+
    # JWT configuration
    export JWT_SECRET="your_jwt_secret_key"
-   export JWT_ALGORITHM="HS256"
    export JWT_ISSUER="vera-py-service"
    export JWT_AUDIENCE="vera-clients"
-   
+
    # Password policy
    export MIN_USERNAME_LENGTH="3"
    export MAX_USERNAME_LENGTH="50"
@@ -272,19 +270,19 @@ The authentication system requires several environment variables:
    # Core service configuration
    WEBSOCKET_URL=ws://your-plugboard:4000/websocket
    TOKEN=your_plugboard_token
-   
+
    # Database configuration
    POSTGRES_USER=auth
    POSTGRES_PASSWORD=your_secure_password
    POSTGRES_DB=auth
    POSTGRES_PORT=5432
-   
+
    # JWT configuration
    JWT_SECRET=your_jwt_secret_key
    JWT_ALGORITHM=HS256
    JWT_ISSUER=vera-py-service
    JWT_AUDIENCE=vera-clients
-   
+
    # Password policy
    MIN_USERNAME_LENGTH=3
    MAX_USERNAME_LENGTH=50
@@ -296,7 +294,7 @@ The authentication system requires several environment variables:
    ```bash
    # Start PostgreSQL and authentication service
    docker compose up -d
-   
+
    # View logs
    docker compose logs -f auth
    ```
@@ -369,7 +367,7 @@ register_action = {
         "email": "john@example.com",
         "phone_number": "+1-555-123-4567",
         "password": "securepassword123",
-        "expire_at": 1735689600  # Optional: JWT expiration timestamp
+        "expires_at": 1735689600  # Optional: JWT expiration timestamp
     }
 }
 
@@ -389,7 +387,7 @@ login_action = {
 
 # Login with email
 login_action = {
-    "action": "Login", 
+    "action": "Login",
     "data": {
         "email": "john@example.com",
         "password": "securepassword123"

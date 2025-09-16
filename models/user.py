@@ -8,14 +8,15 @@ class User(base):
     This model stores information about registered users, including their
     login credentials, contact details, and lifecycle timestamps. It enforces
     uniqueness constraints on username, email, and phone number to ensure
-    account integrity. Soft deletion is supported via the deleted_at field.
+    account integrity. At least one of username, email, or phone_number must
+    be provided. Soft deletion is supported via the deleted_at field.
 
     Attributes:
         id (int): Primary key, auto-incrementing user identifier.
-        username (str): Unique username for login and identification.
+        username (str | None): Optional unique username for login and identification.
         name (str): Full display name of the user.
-        email (str): Unique email address of the user.
-        phone_number (str): Unique phone number of the user.
+        email (str | None): Optional unique email address of the user.
+        phone_number (str | None): Optional unique phone number of the user.
         password_digest (str): Hashed user password.
         created_at (datetime): Timestamp when the user record was created.
         updated_at (datetime): Timestamp of the last update.
@@ -38,7 +39,7 @@ class User(base):
     )
     username = Column(
         String,
-        nullable = False,
+        nullable = True,
         unique = True,
         index = True
     )
@@ -48,15 +49,13 @@ class User(base):
     )
     email = Column(
         String,
-        nullable = False,
+        nullable = True,
         unique = True,
         index = True
     )
     phone_number = Column(
         String,
-        nullable = False,
-        unique = True,
-        index = True
+        nullable = True
     )
     password_digest = Column(
         String,
@@ -89,10 +88,6 @@ class User(base):
         Index(
             "idx_users_email",
             "email"
-        ),
-        Index(
-            "idx_users_phone_number",
-            "phone_number"
         ),
         Index(
             "idx_users_deleted_at",
