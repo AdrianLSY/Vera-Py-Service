@@ -1,11 +1,11 @@
 from datetime import UTC, datetime
 from os import getenv
-from typing import TYPE_CHECKING, Annotated, Union, override
+from typing import TYPE_CHECKING, Annotated, Any, Dict, Union, override
 from uuid import uuid4
 
 import phonenumbers
 from bcrypt import gensalt, hashpw
-from jwt import encode
+from jwt import encode  # type: ignore
 from phonenumbers import NumberParseException
 from pydantic import EmailStr, Field
 from sqlalchemy.exc import IntegrityError
@@ -180,7 +180,7 @@ class Register(ActionRunner):
                 message = "Missing JWT secret"
             )
 
-        claims = {
+        claims: Dict[str, Any] = {
             "jti": str(uuid4()),
             "iss": getenv("JWT_ISSUER"),
             "aud": getenv("JWT_AUDIENCE"),

@@ -19,7 +19,7 @@ class Database:
     """
     __instance: Optional['Database'] = None
     __engine: Optional[Engine] = None
-    __session_factory: Optional[sessionmaker] = None
+    __session_factory: Optional[sessionmaker[Session]] = None
     __host: Optional[str] = None
     __port: Optional[str] = None
     __username: Optional[str] = None
@@ -115,12 +115,12 @@ class Database:
         return self.__engine
 
     @property
-    def session_factory(self) -> Optional[sessionmaker]:
+    def session_factory(self) -> Optional[sessionmaker[Session]]:
         """
         Get the session factory instance.
 
         Returns:
-            Optional[sessionmaker]: The SQLAlchemy session factory, or None if not initialized.
+            Optional[sessionmaker[Session]]: The SQLAlchemy session factory, or None if not initialized.
         """
         return self.__session_factory
 

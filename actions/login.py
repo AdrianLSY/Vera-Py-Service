@@ -1,11 +1,11 @@
 from datetime import UTC, datetime
 from os import getenv
-from typing import TYPE_CHECKING, Union, override
+from typing import TYPE_CHECKING, Any, Dict, Union, override
 from uuid import uuid4
 
 import phonenumbers
 from bcrypt import checkpw
-from jwt import encode
+from jwt import encode  # type: ignore
 from phonenumbers import NumberParseException
 from pydantic import EmailStr, Field, constr, field_validator, model_validator
 from websockets import ClientConnection
@@ -18,16 +18,17 @@ from models.user import User
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
 
+def __get_env_int(var_name: str, default: int) -> int:
+    """Get environment variable as int or return default."""
+    value = getenv(var_name)
+    return int(value) if value is not None else default
+
 class Login(ActionRunner):
-    username: Union[
-        constr(
-            min_length = getenv("MIN_USERNAME_LENGTH"),
-            max_length = getenv("MAX_USERNAME_LENGTH")
-        ),
-        None
-    ] = Field(
+    username: Union[str, None] = Field(
         description = "The username",
-        default = None
+        default = None,
+        min_length = __get_env_int("MIN_USERNAME_LENGTH", 3),
+        max_length = __get_env_int("MAX_USERNAME_LENGTH", 50)
     )
 
     email: Union[EmailStr, None] = Field(
@@ -35,11 +36,10 @@ class Login(ActionRunner):
         default = None
     )
 
-    password: constr(
-        min_length = getenv("MIN_PASSWORD_LENGTH"),
-        max_length = getenv("MAX_PASSWORD_LENGTH")
-    ) = Field(
-        description = "The password"
+    password: str = Field(
+        description = "The password",
+        min_length = __get_env_int("MIN_PASSWORD_LENGTH", 8),
+        max_length = __get_env_int("MAX_PASSWORD_LENGTH", 128)
     )
 
     not_before: Union[int, None] = Field(
@@ -125,7 +125,7 @@ class Login(ActionRunner):
                 message = "Missing JWT secret"
             )
 
-        claims = {
+        claims: Dict[str, Any] = {
             "jti": str(uuid4()),
             "iss": getenv("JWT_ISSUER"),
             "aud": getenv("JWT_AUDIENCE"),

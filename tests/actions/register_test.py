@@ -1,10 +1,11 @@
 from asyncio import run
 from datetime import UTC, datetime
 from os import environ, getenv
+from typing import Any, Dict
 from unittest import TestCase, expectedFailure, main
 from unittest.mock import MagicMock
 
-from jwt import decode
+from jwt import decode  # type: ignore
 
 from actions.register import Register
 from core.database import Database
@@ -14,8 +15,12 @@ class TestRegister(TestCase):
     """
     Integration test cases for the Database class using real database.
     """
+    original_env: Dict[str, str]  # type: ignore
+    magic_mock: MagicMock  # type: ignore
+    db: Database  # type: ignore
+    jwt_secret: str  # type: ignore
 
-    def setUp(self) -> None:
+    def setUp(self) -> None:  # type: ignore
         """
         Set up test fixtures before each test method.
         """
@@ -32,7 +37,7 @@ class TestRegister(TestCase):
         if not self.jwt_secret:
             raise ValueError("JWT_SECRET environment variable is not set")
 
-    def tearDown(self) -> None:
+    def tearDown(self) -> None:  # type: ignore
         """
         Clean up after each test method.
         """
@@ -46,7 +51,7 @@ class TestRegister(TestCase):
         """
         Verify the JWT token.
         """
-        claims = decode(
+        claims: Dict[str, Any] = decode(
             jwt,
             self.jwt_secret,
             algorithms = [getenv("JWT_ALGORITHM", "HS256")],

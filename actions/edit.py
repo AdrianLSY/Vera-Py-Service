@@ -1,9 +1,9 @@
 from os import getenv
-from typing import TYPE_CHECKING, Union, override
+from typing import TYPE_CHECKING, Any, Dict, Union, override
 
 import phonenumbers
 from bcrypt import gensalt, hashpw
-from jwt import InvalidTokenError, decode
+from jwt import InvalidTokenError, decode  # type: ignore
 from phonenumbers import NumberParseException
 from pydantic import EmailStr, Field, constr, field_validator
 from sqlalchemy.exc import IntegrityError
@@ -18,31 +18,28 @@ from models.user import User
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
 
+def __get_env_int(var_name: str, default: int) -> int:
+    """Get environment variable as int or return default."""
+    value = getenv(var_name)
+    return int(value) if value is not None else default
+
 class Edit(ActionRunner):
     jwt: str = Field(
         description = "The JWT token for authentication"
     )
 
-    username: Union[
-        constr(
-            min_length = getenv("MIN_USERNAME_LENGTH"),
-            max_length = getenv("MAX_USERNAME_LENGTH")
-        ),
-        None
-    ] = Field(
+    username: Union[str, None] = Field(
         description = "The new username",
-        default = None
+        default = None,
+        min_length = __get_env_int("MIN_USERNAME_LENGTH", 3),
+        max_length = __get_env_int("MAX_USERNAME_LENGTH", 50)
     )
 
-    name: Union[
-        constr(
-            min_length = 1,
-            max_length = 255
-        ),
-        None
-    ] = Field(
+    name: Union[str, None] = Field(
         description = "The new name",
-        default = None
+        default = None,
+        min_length = 1,
+        max_length = 255
     )
 
     email: Union[EmailStr, None] = Field(
@@ -55,15 +52,11 @@ class Edit(ActionRunner):
         default = None
     )
 
-    password: Union[
-        constr(
-            min_length = getenv("MIN_PASSWORD_LENGTH"),
-            max_length = getenv("MAX_PASSWORD_LENGTH")
-        ),
-        None
-    ] = Field(
+    password: Union[str, None] = Field(
         description = "The new password",
-        default = None
+        default = None,
+        min_length = __get_env_int("MIN_PASSWORD_LENGTH", 8),
+        max_length = __get_env_int("MAX_PASSWORD_LENGTH", 128)
     )
 
     @field_validator('phone_number')
@@ -123,7 +116,7 @@ class Edit(ActionRunner):
 
         try:
             # decode JWT with validation
-            claims = decode(
+            claims: Dict[str, Any] = decode(
                 self.jwt,
                 secret,
                 algorithms = [getenv("JWT_ALGORITHM", "HS256")],

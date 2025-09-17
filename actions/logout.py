@@ -1,8 +1,8 @@
 from datetime import UTC, datetime
 from os import getenv
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Any, Dict, override
 
-from jwt import InvalidTokenError, decode
+from jwt import InvalidTokenError, decode  # type: ignore
 from pydantic import Field
 from sqlalchemy.exc import IntegrityError
 from websockets import ClientConnection
@@ -38,7 +38,7 @@ class Logout(ActionRunner):
 
         try:
             # decode JWT with validation
-            payload = decode(
+            payload: Dict[str, Any] = decode(
                 self.jwt,
                 secret,
                 algorithms = [getenv("JWT_ALGORITHM", "HS256")],

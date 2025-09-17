@@ -1,7 +1,7 @@
 from os import getenv
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Any, Dict, override
 
-from jwt import InvalidTokenError, decode
+from jwt import InvalidTokenError, decode  # type: ignore
 from pydantic import Field
 from websockets import ClientConnection
 
@@ -37,7 +37,7 @@ class Show(ActionRunner):
 
         try:
             # decode JWT with validation
-            claims = decode(
+            claims: Dict[str, Any] = decode(
                 self.jwt,
                 secret,
                 algorithms = [getenv("JWT_ALGORITHM", "HS256")],

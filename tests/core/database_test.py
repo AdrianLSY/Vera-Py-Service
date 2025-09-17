@@ -1,4 +1,5 @@
 from os import environ, getenv
+from typing import Dict
 from unittest import TestCase, main
 
 from sqlalchemy import text
@@ -10,7 +11,10 @@ class TestDatabase(TestCase):
     """
     Integration test cases for the Database class using a real database.
     """
-    def setUp(self) -> None:
+    original_env: Dict[str, str]  # type: ignore
+    db: Database  # type: ignore
+
+    def setUp(self) -> None:  # type: ignore
         """
         Set up test fixtures before each test method.
         """
@@ -19,7 +23,7 @@ class TestDatabase(TestCase):
         self.db = Database()
         self.db.initialize()
 
-    def tearDown(self) -> None:
+    def tearDown(self) -> None:  # type: ignore
         try:
             self.db.teardown()
         except Exception:
