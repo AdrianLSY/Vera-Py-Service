@@ -234,20 +234,28 @@ The authentication system requires several environment variables:
 
    # Database configuration
    export POSTGRES_USER="auth"
-   export POSTGRES_PASSWORD="your_secure_password"
-   export POSTGRES_DB="auth"
+   export POSTGRES_PASSWORD="auth"
+   export POSTGRES_DB_DEVELOPMENT="auth_development"
+   export POSTGRES_DB_TEST="auth_test"
+   export POSTGRES_DB_PRODUCTION="auth_production"
+   export POSTGRES_HOST="localhost"
    export POSTGRES_PORT="5432"
 
    # JWT configuration
    export JWT_SECRET="your_jwt_secret_key"
-   export JWT_ISSUER="vera-py-service"
-   export JWT_AUDIENCE="vera-clients"
+   export JWT_ISSUER="auth"
+   export JWT_AUDIENCE="auth"
 
-   # Password policy
-   export MIN_USERNAME_LENGTH="3"
-   export MAX_USERNAME_LENGTH="50"
-   export MIN_PASSWORD_LENGTH="8"
-   export MAX_PASSWORD_LENGTH="128"
+   # Environment and validation policy
+   export ENVIRONMENT="development"
+   export MIN_NAME_LENGTH="1"
+   export MAX_NAME_LENGTH="100"
+   export MIN_USERNAME_LENGTH="1"
+   export MAX_USERNAME_LENGTH="100"
+   export MIN_EMAIL_LENGTH="1"
+   export MAX_EMAIL_LENGTH="100"
+   export MIN_PASSWORD_LENGTH="1"
+   export MAX_PASSWORD_LENGTH="100"
    ```
 
 5. **Run database migrations**:
@@ -273,21 +281,28 @@ The authentication system requires several environment variables:
 
    # Database configuration
    POSTGRES_USER=auth
-   POSTGRES_PASSWORD=your_secure_password
-   POSTGRES_DB=auth
+   POSTGRES_PASSWORD=auth
+   POSTGRES_DB_DEVELOPMENT=auth_development
+   POSTGRES_DB_TEST=auth_test
+   POSTGRES_DB_PRODUCTION=auth_production
+   POSTGRES_HOST=localhost
    POSTGRES_PORT=5432
 
    # JWT configuration
    JWT_SECRET=your_jwt_secret_key
-   JWT_ALGORITHM=HS256
-   JWT_ISSUER=vera-py-service
-   JWT_AUDIENCE=vera-clients
+   JWT_ISSUER=auth
+   JWT_AUDIENCE=auth
 
-   # Password policy
-   MIN_USERNAME_LENGTH=3
-   MAX_USERNAME_LENGTH=50
-   MIN_PASSWORD_LENGTH=8
-   MAX_PASSWORD_LENGTH=128
+   # Environment and validation policy
+   ENVIRONMENT=development
+   MIN_NAME_LENGTH=1
+   MAX_NAME_LENGTH=100
+   MIN_USERNAME_LENGTH=1
+   MAX_USERNAME_LENGTH=100
+   MIN_EMAIL_LENGTH=1
+   MAX_EMAIL_LENGTH=100
+   MIN_PASSWORD_LENGTH=1
+   MAX_PASSWORD_LENGTH=100
    ```
 
 2. **Start the complete stack**:
@@ -317,10 +332,24 @@ The authentication system requires several environment variables:
    docker run -e WEBSOCKET_URL="ws://your-plugboard:4000/websocket" \
               -e TOKEN="your_plugboard_token" \
               -e POSTGRES_USER="auth" \
-              -e POSTGRES_PASSWORD="your_password" \
-              -e POSTGRES_DB="auth" \
+              -e POSTGRES_PASSWORD="auth" \
+              -e POSTGRES_DB_DEVELOPMENT="auth_development" \
+              -e POSTGRES_DB_TEST="auth_test" \
+              -e POSTGRES_DB_PRODUCTION="auth_production" \
               -e POSTGRES_HOST="your-postgres-host" \
+              -e POSTGRES_PORT="5432" \
               -e JWT_SECRET="your_jwt_secret" \
+              -e JWT_ISSUER="auth" \
+              -e JWT_AUDIENCE="auth" \
+              -e ENVIRONMENT="development" \
+              -e MIN_NAME_LENGTH="1" \
+              -e MAX_NAME_LENGTH="100" \
+              -e MIN_USERNAME_LENGTH="1" \
+              -e MAX_USERNAME_LENGTH="100" \
+              -e MIN_EMAIL_LENGTH="1" \
+              -e MAX_EMAIL_LENGTH="100" \
+              -e MIN_PASSWORD_LENGTH="1" \
+              -e MAX_PASSWORD_LENGTH="100" \
               vera-py-service
    ```
 
@@ -526,7 +555,9 @@ The framework includes robust error handling:
 |----------|-------------|----------|---------|
 | `POSTGRES_USER` | PostgreSQL username | Yes | - |
 | `POSTGRES_PASSWORD` | PostgreSQL password | Yes | - |
-| `POSTGRES_DB` | PostgreSQL database name | Yes | - |
+| `POSTGRES_DB_DEVELOPMENT` | PostgreSQL database name for development | Yes | - |
+| `POSTGRES_DB_TEST` | PostgreSQL database name for testing | Yes | - |
+| `POSTGRES_DB_PRODUCTION` | PostgreSQL database name for production | Yes | - |
 | `POSTGRES_HOST` | PostgreSQL host | No | localhost |
 | `POSTGRES_PORT` | PostgreSQL port | No | 5432 |
 
@@ -539,12 +570,17 @@ The framework includes robust error handling:
 | `JWT_ISSUER` | JWT issuer claim | Yes | - |
 | `JWT_AUDIENCE` | JWT audience claim | Yes | - |
 
-#### Password Policy Configuration
+#### Environment and Validation Configuration
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
+| `ENVIRONMENT` | Current environment (development/test/production) | Yes | - |
+| `MIN_NAME_LENGTH` | Minimum name length | Yes | - |
+| `MAX_NAME_LENGTH` | Maximum name length | Yes | - |
 | `MIN_USERNAME_LENGTH` | Minimum username length | Yes | - |
 | `MAX_USERNAME_LENGTH` | Maximum username length | Yes | - |
+| `MIN_EMAIL_LENGTH` | Minimum email length | Yes | - |
+| `MAX_EMAIL_LENGTH` | Maximum email length | Yes | - |
 | `MIN_PASSWORD_LENGTH` | Minimum password length | Yes | - |
 | `MAX_PASSWORD_LENGTH` | Maximum password length | Yes | - |
 
@@ -555,29 +591,46 @@ The framework includes robust error handling:
 export WEBSOCKET_URL="ws://localhost:4000/websocket"
 export TOKEN="dev_token_123"
 export POSTGRES_USER="auth"
-export POSTGRES_PASSWORD="dev_password"
-export POSTGRES_DB="auth"
+export POSTGRES_PASSWORD="auth"
+export POSTGRES_DB_DEVELOPMENT="auth_development"
+export POSTGRES_DB_TEST="auth_test"
+export POSTGRES_DB_PRODUCTION="auth_production"
+export POSTGRES_HOST="localhost"
+export POSTGRES_PORT="5432"
 export JWT_SECRET="dev_jwt_secret_key"
-export JWT_ISSUER="vera-py-service"
-export JWT_AUDIENCE="vera-clients"
-export MIN_USERNAME_LENGTH="3"
-export MAX_USERNAME_LENGTH="50"
-export MIN_PASSWORD_LENGTH="8"
-export MAX_PASSWORD_LENGTH="128"
+export JWT_ISSUER="auth"
+export JWT_AUDIENCE="auth"
+export ENVIRONMENT="development"
+export MIN_NAME_LENGTH="1"
+export MAX_NAME_LENGTH="100"
+export MIN_USERNAME_LENGTH="1"
+export MAX_USERNAME_LENGTH="100"
+export MIN_EMAIL_LENGTH="1"
+export MAX_EMAIL_LENGTH="100"
+export MIN_PASSWORD_LENGTH="1"
+export MAX_PASSWORD_LENGTH="100"
 
 # Production
 export WEBSOCKET_URL="wss://plugboard.yourdomain.com/websocket"
 export TOKEN="prod_token_456"
 export POSTGRES_USER="auth"
 export POSTGRES_PASSWORD="secure_production_password"
-export POSTGRES_DB="auth"
+export POSTGRES_DB_DEVELOPMENT="auth_development"
+export POSTGRES_DB_TEST="auth_test"
+export POSTGRES_DB_PRODUCTION="auth_production"
 export POSTGRES_HOST="postgres.yourdomain.com"
+export POSTGRES_PORT="5432"
 export JWT_SECRET="secure_production_jwt_secret"
-export JWT_ISSUER="vera-py-service"
-export JWT_AUDIENCE="vera-clients"
-export MIN_USERNAME_LENGTH="3"
-export MAX_USERNAME_LENGTH="50"
-export MIN_PASSWORD_LENGTH="12"
+export JWT_ISSUER="auth"
+export JWT_AUDIENCE="auth"
+export ENVIRONMENT="production"
+export MIN_NAME_LENGTH="1"
+export MAX_NAME_LENGTH="100"
+export MIN_USERNAME_LENGTH="1"
+export MAX_USERNAME_LENGTH="100"
+export MIN_EMAIL_LENGTH="1"
+export MAX_EMAIL_LENGTH="100"
+export MIN_PASSWORD_LENGTH="8"
 export MAX_PASSWORD_LENGTH="128"
 ```
 

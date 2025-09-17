@@ -43,11 +43,11 @@ class Database:
         Initialize the database connection using environment variables.
 
         Reads database configuration from environment variables:
-        - POSTGRES_HOST: Database host (default: localhost)
-        - POSTGRES_PORT: Database port (default: 5432)
-        - POSTGRES_USER: Database username (default: auth)
-        - POSTGRES_PASSWORD: Database password (default: auth)
-        - ENVIRONMENT: Environment name (development/test/production)
+        - POSTGRES_HOST: Database host
+        - POSTGRES_PORT: Database port
+        - POSTGRES_USER: Database username
+        - POSTGRES_PASSWORD: Database password
+        - ENVIRONMENT: Environment name
         - POSTGRES_DB_DEVELOPMENT: Development database name
         - POSTGRES_DB_TEST: Test database name
         - POSTGRES_DB_PRODUCTION: Production database name
