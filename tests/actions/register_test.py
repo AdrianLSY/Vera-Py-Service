@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 from jwt import decode  # type: ignore
 
 from actions.register import Register
-from core.database import Database
+from core.database import database
 
 
 class TestRegister(TestCase):
@@ -17,7 +17,6 @@ class TestRegister(TestCase):
     """
     original_env: Dict[str, str]  # type: ignore
     magic_mock: MagicMock  # type: ignore
-    db: Database  # type: ignore
     jwt_secret: str  # type: ignore
 
     def setUp(self) -> None:  # type: ignore
@@ -27,11 +26,12 @@ class TestRegister(TestCase):
         # Set up test environment variables
         self.original_env = environ.copy()
         environ.update({"ENVIRONMENT": "test"})
-
         self.magic_mock = MagicMock()
-        self.db = Database()
-        self.db.initialize()
-        self.db.migrate()
+
+        # Initialize the global database instance used by actions
+        database.initialize()
+        database.migrate()
+
         self.jwt_secret = getenv("JWT_SECRET")
 
         if not self.jwt_secret:
@@ -41,11 +41,17 @@ class TestRegister(TestCase):
         """
         Clean up after each test method.
         """
+        # Clean up global database instance if it's initialized
+        try:
+            database.teardown()
+            database.deinitialize()
+        except RuntimeError:
+            # Database was already deinitialized, ignore
+            pass
+
         # Restore original environment
         environ.clear()
         environ.update(self.original_env)
-        self.db.teardown()
-        pass
 
     def __verify_jwt(self, jwt: str) -> Dict[str, Any]:
         """

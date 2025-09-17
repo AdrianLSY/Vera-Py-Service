@@ -4,7 +4,7 @@ from unittest import TestCase, main
 
 from sqlalchemy import text
 
-from core.database import Database
+from core.database import Database, database
 
 
 class TestDatabase(TestCase):
@@ -12,7 +12,6 @@ class TestDatabase(TestCase):
     Integration test cases for the Database class using a real database.
     """
     original_env: Dict[str, str]  # type: ignore
-    db: Database  # type: ignore
 
     def setUp(self) -> None:  # type: ignore
         """
@@ -20,12 +19,16 @@ class TestDatabase(TestCase):
         """
         self.original_env = environ.copy()
         environ.update({"ENVIRONMENT": "test"})
-        self.db = Database()
-        self.db.initialize()
+        database.initialize()
 
     def tearDown(self) -> None:  # type: ignore
         try:
-            self.db.teardown()
+            database.teardown()
+        except Exception:
+            pass
+
+        try:
+            database.deinitialize()
         except Exception:
             pass
 
@@ -36,32 +39,37 @@ class TestDatabase(TestCase):
         """
         Test that the Database class is a singleton.
         """
-        db = Database()
-        self.assertIs(db, self.db)
+        # Test that multiple calls to Database() return the same instance
+        db1 = Database()
+        db2 = Database()
+        self.assertIs(db1, db2)
 
     def test_initialization(self):
         """
         Test that the Database class is initialized correctly.
         """
-        assert self.db.host == getenv("POSTGRES_HOST")
-        assert self.db.port == getenv("POSTGRES_PORT")
-        assert self.db.username == getenv("POSTGRES_USER")
-        assert self.db.password == getenv("POSTGRES_PASSWORD")
-        assert self.db.environment == getenv("ENVIRONMENT")
+        assert database.host == getenv("POSTGRES_HOST")
+        assert database.port == getenv("POSTGRES_PORT")
+        assert database.username == getenv("POSTGRES_USER")
+        assert database.password == getenv("POSTGRES_PASSWORD")
+        assert database.environment == getenv("ENVIRONMENT")
 
     def test_deinitialization(self):
         """
         Test that the Database class is deinitialized correctly.
         """
-        self.db.deinitialize()
-        assert self.db.host == None
-        assert self.db.port == None
-        assert self.db.username == None
-        assert self.db.password == None
-        assert self.db.environment == None
+        database.deinitialize()
+        assert database.host == None
+        assert database.port == None
+        assert database.username == None
+        assert database.password == None
+        assert database.environment == None
+
+        # Reinitialize for subsequent tests
+        database.initialize()
 
     def test_correct_database(self):
-        with self.db.session() as session:
+        with database.session() as session:
             result = session.execute(
                 text(
                     "SELECT current_database();"
@@ -75,7 +83,7 @@ class TestDatabase(TestCase):
         Test that the Database class can be migrated and torn down correctly.
         """
         # Check if alembic_version table exists and verify it's empty
-        with self.db.session() as session:
+        with database.session() as session:
             result = session.execute(
                 text(
                     "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'alembic_version')"
@@ -94,10 +102,10 @@ class TestDatabase(TestCase):
                 self.assertEqual(version_count, 0, "alembic_version table should be empty in clean database")
 
         # Run migration
-        self.db.migrate()
+        database.migrate()
 
         # Verify migration succeeded by checking alembic_version table has records
-        with self.db.session() as session:
+        with database.session() as session:
             result = session.execute(
                 text(
                     "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'alembic_version')"
@@ -106,10 +114,10 @@ class TestDatabase(TestCase):
             table_exists = result.scalar()
             self.assertTrue(table_exists, "alembic_version table should exist after migration")
         # Run teardown
-        self.db.teardown()
+        database.teardown()
 
         # Verify teardown succeeded by checking database is back to empty state
-        with self.db.session() as session:
+        with database.session() as session:
             result = session.execute(
                 text(
                     "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'alembic_version')"
@@ -132,7 +140,7 @@ class TestDatabase(TestCase):
         Test that transactions handle both success and failure scenarios correctly.
         """
         # Create a temporary test table
-        with self.db.session() as session:
+        with database.session() as session:
             session.execute(
                 text(
                     """
@@ -146,7 +154,7 @@ class TestDatabase(TestCase):
             session.commit()
 
         # Test successful transaction - should commit data
-        with self.db.transaction() as session:
+        with database.transaction() as session:
             session.execute(
                 text(
                     "INSERT INTO test_transaction (value) VALUES ('success_value')"
@@ -154,7 +162,7 @@ class TestDatabase(TestCase):
             )
 
         # Verify successful transaction data was committed
-        with self.db.session() as session:
+        with database.session() as session:
             result = session.execute(
                 text(
                     "SELECT COUNT(*) FROM test_transaction WHERE value = 'success_value'"
@@ -165,7 +173,7 @@ class TestDatabase(TestCase):
 
         # Test failed transaction - should rollback data
         with self.assertRaises(Exception):
-            with self.db.transaction() as session:
+            with database.transaction() as session:
                 session.execute(
                     text(
                         "INSERT INTO test_transaction (value) VALUES ('rollback_value')"
@@ -179,7 +187,7 @@ class TestDatabase(TestCase):
                 )
 
         # Verify rollback occurred - 'rollback_value' should not exist
-        with self.db.session() as session:
+        with database.session() as session:
             result = session.execute(
                 text(
                     "SELECT COUNT(*) FROM test_transaction WHERE value = 'rollback_value'"
@@ -190,7 +198,7 @@ class TestDatabase(TestCase):
 
         # Test manual rollback by raising custom exception
         with self.assertRaises(ValueError):
-            with self.db.transaction() as session:
+            with database.transaction() as session:
                 session.execute(
                     text(
                         "INSERT INTO test_transaction (value) VALUES ('manual_rollback')"
@@ -199,7 +207,7 @@ class TestDatabase(TestCase):
                 raise ValueError("Manual rollback test")
 
         # Verify manual rollback occurred
-        with self.db.session() as session:
+        with database.session() as session:
             result = session.execute(
                 text(
                     "SELECT COUNT(*) FROM test_transaction WHERE value = 'manual_rollback'"
