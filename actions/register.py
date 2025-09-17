@@ -109,13 +109,6 @@ class Register(ActionRunner):
                 message = "Not before date must be before expiration date"
             )
 
-        # Validate expires_at is not before the current time
-        if self.expires_at is not None and self.expires_at < datetime.now(tz = UTC).timestamp():
-            return ActionResponse(
-                status_code = 400,
-                message = "Expiration date must be in the future"
-            )
-
         # Validate and format phone number if provided
         formatted_phone_number = None
         if self.phone_number is not None:
@@ -188,9 +181,9 @@ class Register(ActionRunner):
             "iat": int(datetime.now(UTC).timestamp())
         }
         if self.not_before is not None:
-            claims["nbf"] = int(self.not_before)
+            claims["nbf"] = self.not_before
         if self.expires_at is not None:
-            claims["exp"] = int(self.expires_at)
+            claims["exp"] = self.expires_at
 
         return ActionResponse(
             status_code = 201,

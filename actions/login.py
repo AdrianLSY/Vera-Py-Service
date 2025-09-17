@@ -18,7 +18,7 @@ from models.user import User
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
 
-def __get_env_int(var_name: str, default: int) -> int:
+def _get_env_int(var_name: str, default: int) -> int:
     """Get environment variable as int or return default."""
     value = getenv(var_name)
     return int(value) if value is not None else default
@@ -27,8 +27,8 @@ class Login(ActionRunner):
     username: Union[str, None] = Field(
         description = "The username",
         default = None,
-        min_length = __get_env_int("MIN_USERNAME_LENGTH", 3),
-        max_length = __get_env_int("MAX_USERNAME_LENGTH", 50)
+        min_length = _get_env_int("MIN_USERNAME_LENGTH", 3),
+        max_length = _get_env_int("MAX_USERNAME_LENGTH", 50)
     )
 
     email: Union[EmailStr, None] = Field(
@@ -38,8 +38,8 @@ class Login(ActionRunner):
 
     password: str = Field(
         description = "The password",
-        min_length = __get_env_int("MIN_PASSWORD_LENGTH", 8),
-        max_length = __get_env_int("MAX_PASSWORD_LENGTH", 128)
+        min_length = _get_env_int("MIN_PASSWORD_LENGTH", 8),
+        max_length = _get_env_int("MAX_PASSWORD_LENGTH", 128)
     )
 
     not_before: Union[int, None] = Field(
@@ -76,6 +76,13 @@ class Login(ActionRunner):
             return ActionResponse(
                 status_code = 400,
                 message = "Only one identifier (username, email, or phone_number) can be provided"
+            )
+
+        # Validate not_before is before expires_at
+        if self.not_before is not None and self.expires_at is not None and self.not_before > self.expires_at:
+            return ActionResponse(
+                status_code = 400,
+                message = "Not before date must be before expiration date"
             )
 
         # lookup user and verify password
@@ -130,12 +137,12 @@ class Login(ActionRunner):
             "iss": getenv("JWT_ISSUER"),
             "aud": getenv("JWT_AUDIENCE"),
             "sub": str(user_id),
-            "iat": datetime.now(UTC).timestamp(),
+            "iat": int(datetime.now(UTC).timestamp(),)
         }
         if self.not_before is not None:
-            claims["nbf"] = int(self.not_before)
+            claims["nbf"] = self.not_before
         if self.expires_at is not None:
-            claims["exp"] = int(self.expires_at)
+            claims["exp"] = self.expires_at
 
         return ActionResponse(
             status_code = 200,
@@ -145,6 +152,7 @@ class Login(ActionRunner):
                     secret,
                     algorithm = getenv("JWT_ALGORITHM")
                 ),
+                "not_before": self.not_before,
                 "expires_at": self.expires_at,
             },
         )

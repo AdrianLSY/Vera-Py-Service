@@ -2,7 +2,7 @@ from asyncio import run
 from datetime import UTC, datetime
 from os import environ, getenv
 from typing import Any, Dict
-from unittest import TestCase, expectedFailure, main
+from unittest import TestCase, main
 from unittest.mock import MagicMock
 
 from jwt import decode  # type: ignore
@@ -47,7 +47,7 @@ class TestRegister(TestCase):
         self.db.teardown()
         pass
 
-    def __verify_jwt(self, jwt: str) -> None:
+    def __verify_jwt(self, jwt: str) -> Dict[str, Any]:
         """
         Verify the JWT token.
         """
@@ -79,6 +79,8 @@ class TestRegister(TestCase):
             assert claims["iat"] <= claims["exp"]
         if "nbf" in claims and "exp" in claims:
             assert claims["nbf"] <= claims["exp"]
+
+        return claims
 
     async def __test_register_username(self) -> None:
         """
@@ -344,20 +346,6 @@ class TestRegister(TestCase):
         )
         assert result.status_code == 400
         assert result.message == "Not before date must be before expiration date"
-        assert result.fields == None
-
-        result = await Register(
-            username = "invalidtimestamp",
-            name = "Invalid Timestamp User",
-            email = None,
-            password = "password123",
-            expires_at = current_time - 100
-        ).run(
-            client = self.magic_mock,
-            websocket = self.magic_mock
-        )
-        assert result.status_code == 400
-        assert result.message == "Expiration date must be in the future"
         assert result.fields == None
 
     def test_register_invalid_timestamps(self) -> None:

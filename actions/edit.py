@@ -18,7 +18,7 @@ from models.user import User
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
 
-def __get_env_int(var_name: str, default: int) -> int:
+def _get_env_int(var_name: str, default: int) -> int:
     """Get environment variable as int or return default."""
     value = getenv(var_name)
     return int(value) if value is not None else default
@@ -31,8 +31,8 @@ class Edit(ActionRunner):
     username: Union[str, None] = Field(
         description = "The new username",
         default = None,
-        min_length = __get_env_int("MIN_USERNAME_LENGTH", 3),
-        max_length = __get_env_int("MAX_USERNAME_LENGTH", 50)
+        min_length = _get_env_int("MIN_USERNAME_LENGTH", 3),
+        max_length = _get_env_int("MAX_USERNAME_LENGTH", 50)
     )
 
     name: Union[str, None] = Field(
@@ -55,8 +55,8 @@ class Edit(ActionRunner):
     password: Union[str, None] = Field(
         description = "The new password",
         default = None,
-        min_length = __get_env_int("MIN_PASSWORD_LENGTH", 8),
-        max_length = __get_env_int("MAX_PASSWORD_LENGTH", 128)
+        min_length = _get_env_int("MIN_PASSWORD_LENGTH", 8),
+        max_length = _get_env_int("MAX_PASSWORD_LENGTH", 128)
     )
 
     @field_validator('phone_number')
