@@ -1,12 +1,14 @@
-from unittest import expectedFailure
-from unittest import TestCase, main
-from os import environ, getenv
-from core.database import Database
-from actions.register import Register
-from unittest.mock import MagicMock
 from asyncio import run
-from datetime import datetime, UTC
+from datetime import UTC, datetime
+from os import environ, getenv
+from unittest import TestCase, expectedFailure, main
+from unittest.mock import MagicMock
+
 from jwt import decode
+
+from actions.register import Register
+from core.database import Database
+
 
 class TestRegister(TestCase):
     """

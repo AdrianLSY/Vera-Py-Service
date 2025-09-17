@@ -1,7 +1,10 @@
-from unittest import TestCase, main
 from os import environ, getenv
+from unittest import TestCase, main
+
 from sqlalchemy import text
+
 from core.database import Database
+
 
 class TestDatabase(TestCase):
     """

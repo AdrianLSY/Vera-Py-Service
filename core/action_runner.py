@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING
 
 from websockets import ClientConnection
 
-from core.action_schema import ActionSchema
 from core.action_response import ActionResponse
+from core.action_schema import ActionSchema
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient

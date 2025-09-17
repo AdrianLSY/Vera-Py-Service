@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING, Literal, override
 from pydantic import Field
 from websockets import ClientConnection
 
-from core.action_schema import ActionSchema
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
+from core.action_schema import ActionSchema
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient

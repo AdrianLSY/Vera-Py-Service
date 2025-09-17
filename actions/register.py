@@ -1,22 +1,20 @@
-from typing import TYPE_CHECKING, override, Annotated
+from datetime import UTC, datetime
+from os import getenv
+from typing import TYPE_CHECKING, Annotated, Union, override
+from uuid import uuid4
 
-from pydantic import Field, EmailStr
+import phonenumbers
+from bcrypt import gensalt, hashpw
+from jwt import encode
+from phonenumbers import NumberParseException
+from pydantic import EmailStr, Field
+from sqlalchemy.exc import IntegrityError
 from websockets import ClientConnection
 
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
 from core.database import database
-from bcrypt import hashpw, gensalt
-from os import getenv
-from uuid import uuid4
-from jwt import encode
-from sqlalchemy.exc import IntegrityError
 from models.user import User
-from datetime import datetime, UTC
-from typing import Union
-import phonenumbers
-from phonenumbers import NumberParseException
-
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient

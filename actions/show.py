@@ -1,15 +1,15 @@
+from os import getenv
 from typing import TYPE_CHECKING, override
 
+from jwt import InvalidTokenError, decode
 from pydantic import Field
 from websockets import ClientConnection
-from jwt import decode, InvalidTokenError
-from os import getenv
 
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
 from core.database import database
-from models.user import User
 from models.revocation import Revocation
+from models.user import User
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient

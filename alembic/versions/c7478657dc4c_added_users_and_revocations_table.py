@@ -1,15 +1,15 @@
 """added users and revocations table
 
 Revision ID: c7478657dc4c
-Revises: 
+Revises:
 Create Date: 2025-09-16 00:05:44.231937
 
 """
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = 'c7478657dc4c'

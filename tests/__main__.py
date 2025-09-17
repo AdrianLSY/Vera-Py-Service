@@ -2,6 +2,7 @@ from subprocess import run
 from sys import executable
 from typing import Dict, List
 
+
 def run_test_module(module_path: str) -> bool:
     """
     Run a single test module and return the result.

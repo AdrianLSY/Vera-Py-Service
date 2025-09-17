@@ -4,8 +4,8 @@ from os import listdir
 from os.path import exists
 from typing import Any, Dict, Type
 
-from core.action_schema import ActionSchema
 from core.action_runner import ActionRunner
+from core.action_schema import ActionSchema
 
 
 class ActionRegistry():

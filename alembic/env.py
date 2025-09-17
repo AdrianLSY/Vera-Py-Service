@@ -1,16 +1,15 @@
-from logging.config import fileConfig
+import importlib
 import os
 import sys
-import importlib
+from logging.config import fileConfig
 from os import getenv
 from pathlib import Path
 
-from sqlalchemy import create_engine
-from sqlalchemy import pool
+from sqlalchemy import create_engine, pool
 
 from alembic import context
-
 from core.database import base
+
 
 def import_all_models() -> None:
     """

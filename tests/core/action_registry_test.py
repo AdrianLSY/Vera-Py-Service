@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, override
 from unittest import TestCase
 from unittest.mock import patch
 
-from core.action_schema import ActionSchema
 from core.action_registry import ActionRegistry
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
+from core.action_schema import ActionSchema
 
 if TYPE_CHECKING:
     from websockets import ClientConnection

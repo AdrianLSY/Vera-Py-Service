@@ -1,19 +1,19 @@
-from typing import TYPE_CHECKING, override, Union
-
-from pydantic import Field, constr, EmailStr, field_validator, model_validator
-from websockets import ClientConnection
-from bcrypt import checkpw
+from datetime import UTC, datetime
 from os import getenv
+from typing import TYPE_CHECKING, Union, override
 from uuid import uuid4
+
+import phonenumbers
+from bcrypt import checkpw
 from jwt import encode
-from datetime import datetime, UTC
+from phonenumbers import NumberParseException
+from pydantic import EmailStr, Field, constr, field_validator, model_validator
+from websockets import ClientConnection
 
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
 from core.database import database
 from models.user import User
-import phonenumbers
-from phonenumbers import NumberParseException
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
