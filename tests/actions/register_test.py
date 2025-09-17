@@ -417,5 +417,6 @@ class TestRegister(TestCase):
         """
         run(self.__test_register_only_expires_at())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

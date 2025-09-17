@@ -217,5 +217,6 @@ class TestDatabase(TestCase):
             total_count = result.scalar()
             self.assertEqual(total_count, 1, "Only successful transaction data should remain")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
