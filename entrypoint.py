@@ -24,13 +24,7 @@ if __name__ == "__main__":
     if db is None:
         raise ValueError(f"Database name not configured for environment: {environment}")
 
-    database.initialize(
-        host = getenv("POSTGRES_HOST"),
-        port = getenv("POSTGRES_PORT"),
-        username = getenv("POSTGRES_USER"),
-        password = getenv("POSTGRES_PASSWORD"),
-        database = db
-    )
+    database.initialize()
     database.migrate()
 
     run(
