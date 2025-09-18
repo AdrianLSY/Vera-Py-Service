@@ -36,6 +36,7 @@ def main() -> None:
         "tests.actions.login_test",
         "tests.actions.logout_test",
         "tests.actions.register_test",
+        "tests.actions.show_test",
         "tests.core.action_registry_test",
         "tests.core.action_response_test",
         "tests.core.action_runner_test",
