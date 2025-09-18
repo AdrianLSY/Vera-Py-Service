@@ -9,17 +9,13 @@ Vera-Py-Service is designed to be a pluggable microservice that connects to a ce
 ### Key Features
 
 - **RPC API**: Functions as a Remote Procedure Call API, allowing remote execution of actions
-- **Authentication System**: Complete JWT-based authentication with user registration, login, and logout
-- **User Management**: Full user lifecycle management with username, email, and phone number support
-- **Password Security**: Bcrypt-based password hashing for secure credential storage
-- **Token Revocation**: JWT token revocation system for secure logout and session management
 - **High Availability**: Multiple consumer instances can be deployed for redundancy and fault tolerance
 - **Horizontal Scaling**: Easy horizontal scaling by deploying additional consumer instances to meet demand
 - **WebSocket Communication**: Real-time bidirectional communication with the Plugboard system
 - **Automatic Action Discovery**: Dynamic discovery and registration of actions
 - **Type-Safe Models**: Built on Pydantic for robust data validation and serialization
 - **Event-Driven Architecture**: Support for various event types (service updates, token management, etc.)
-- **Docker Support**: Containerized deployment with Alpine Linux and PostgreSQL
+- **Docker Support**: Containerized deployment with Alpine Linux
 
 ## Architecture
 
@@ -72,19 +68,6 @@ Authentication token with:
 - Service association
 - Expiration timestamps
 
-#### **User** (`models/user.py`)
-User account model with:
-- Unique username, email, and phone number
-- Full name and password digest
-- Soft deletion support
-- Comprehensive indexing for performance
-
-#### **Revocation** (`models/revocation.py`)
-JWT token revocation tracking with:
-- JWT ID (JTI) for unique token identification
-- Expiration timestamp for cleanup
-- Audit trail with creation timestamps
-
 ### Event System
 
 The service handles various predefined event types from the Plugboard system:
@@ -100,116 +83,19 @@ The service handles various predefined event types from the Plugboard system:
 
 *Note: Events are predefined by the Plugboard system and typically don't need to be created by developers.*
 
-## Authentication System
-
-The service includes a complete JWT-based authentication system with three main actions:
-
-### Authentication Actions
-
-#### **Register** (`actions/register.py`)
-Creates a new user account and returns a JWT token:
-
-**Input Parameters:**
-- `username` (str): Unique username (configurable length limits)
-- `name` (str): User's full name (1-255 characters)
-- `email` (str): Valid email address (must be unique)
-- `phone_number` (str): Phone number in any format (converted to E.164)
-- `password` (str): User password (configurable length limits)
-- `not_before` (int, optional): JWT not-before timestamp
-- `expires_at` (int, optional): JWT expiration timestamp
-
-**Features:**
-- Automatic phone number validation and E.164 formatting
-- Bcrypt password hashing
-- Duplicate prevention (username, email, phone number uniqueness)
-- JWT token generation with configurable claims
-- Comprehensive error handling for constraint violations
-
-**Response:**
-- Status 201: User created successfully with JWT token
-- Status 409: Username, email, or phone number already exists
-- Status 500: Server error
-
-#### **Login** (`actions/login.py`)
-Authenticates an existing user and returns a JWT token:
-
-**Input Parameters:**
-- `username` (str, optional): Username for authentication
-- `email` (str, optional): Email for authentication
-- `phone_number` (str, optional): Phone number for authentication
-- `password` (str): User password
-- `not_before` (int, optional): JWT not-before timestamp
-- `expires_at` (int, optional): JWT expiration timestamp
-
-**Features:**
-- Flexible authentication (username, email, or phone number)
-- Exactly one identifier required
-- Phone number validation and E.164 formatting
-- Secure password verification with bcrypt
-- JWT token generation with user ID
-
-**Response:**
-- Status 200: Authentication successful with JWT token
-- Status 400: Invalid input (multiple/no identifiers)
-- Status 401: Invalid password
-- Status 404: User not found
-- Status 500: Server error
-
-#### **Logout** (`actions/logout.py`)
-Revokes a JWT token by adding it to the revocation list:
-
-**Input Parameters:**
-- `jwt` (str): JWT token to revoke
-
-**Features:**
-- JWT validation and decoding
-- Token revocation tracking
-- Duplicate revocation prevention
-- Automatic cleanup support via expiration timestamps
-
-**Response:**
-- Status 200: Token successfully revoked
-- Status 401: Invalid or malformed token
-- Status 409: Token already revoked
-- Status 500: Server error
-
-### Security Features
-
-- **Password Hashing**: Uses bcrypt with automatic salt generation
-- **JWT Security**: Configurable algorithm, issuer, and audience validation
-- **Token Revocation**: Complete token lifecycle management
-- **Input Validation**: Comprehensive validation using Pydantic
-- **Phone Number Validation**: International phone number support with E.164 formatting
-- **Soft Deletion**: User accounts support soft deletion for data integrity
-- **Database Transactions**: All operations wrapped in transactions for consistency
-
-### JWT Configuration
-
-The authentication system requires several environment variables:
-
-- `JWT_SECRET`: Secret key for JWT signing
-- `JWT_ISSUER`: JWT issuer claim
-- `JWT_AUDIENCE`: JWT audience claim
-- `MIN_USERNAME_LENGTH`: Minimum username length
-- `MAX_USERNAME_LENGTH`: Maximum username length
-- `MIN_PASSWORD_LENGTH`: Minimum password length
-- `MAX_PASSWORD_LENGTH`: Maximum password length
-
 ## Installation
 
 ### Prerequisites
 
 - Python 3.12+
 - pip package manager
-- PostgreSQL 17+ (for authentication features)
-- Docker and Docker Compose (for containerized deployment)
 
 ### Local Development
 
 1. **Clone the repository**:
    ```bash
    git clone <repository-url>
-   cd Vera-Py-Service
+   cd Py-Service
    ```
 
 2. **Install dependencies**:
@@ -217,148 +103,75 @@ The authentication system requires several environment variables:
    pip install -r requirements.txt
    ```
 
-3. **Set up PostgreSQL database**:
+3. **Set environment variables**:
    ```bash
-   # Start PostgreSQL with Docker Compose
-   docker compose up -d postgres
-
-   # Or set up a local PostgreSQL instance
-   # Create database and user as needed
-   ```
-
-4. **Set environment variables**:
-   ```bash
-   # Core service configuration
    export WEBSOCKET_URL="ws://localhost:4000/websocket"
    export TOKEN="your_plugboard_token"
-
-   # Database configuration
-   export POSTGRES_USER="auth"
-   export POSTGRES_PASSWORD="auth"
-   export POSTGRES_DB_DEVELOPMENT="auth_development"
-   export POSTGRES_DB_TEST="auth_test"
-   export POSTGRES_DB_PRODUCTION="auth_production"
+   export ENVIRONMENT="development"
    export POSTGRES_HOST="localhost"
    export POSTGRES_PORT="5432"
-
-   # JWT configuration
-   export JWT_SECRET="your_jwt_secret_key"
-   export JWT_ISSUER="auth"
-   export JWT_AUDIENCE="auth"
-
-   # Environment and validation policy
-   export ENVIRONMENT="development"
-   export MIN_NAME_LENGTH="1"
-   export MAX_NAME_LENGTH="100"
-   export MIN_USERNAME_LENGTH="1"
-   export MAX_USERNAME_LENGTH="100"
-   export MIN_EMAIL_LENGTH="1"
-   export MAX_EMAIL_LENGTH="100"
-   export MIN_PASSWORD_LENGTH="1"
-   export MAX_PASSWORD_LENGTH="100"
+   export POSTGRES_USER="service"
+   export POSTGRES_PASSWORD="service"
+   export POSTGRES_DB_DEVELOPMENT="service_development"
+   export POSTGRES_DB_TEST="service_test"
+   export POSTGRES_DB_PRODUCTION="service_production"
    ```
 
-5. **Run database migrations**:
-   ```bash
-   # Initialize database tables
-   alembic upgrade head
-   ```
-
-6. **Run the service**:
+4. **Run the service**:
    ```bash
    python entrypoint.py
    ```
 
 ### Docker Deployment
 
-#### Using Docker Compose (Recommended)
-
-1. **Create environment file** (`.env`):
-   ```bash
-   # Core service configuration
-   WEBSOCKET_URL=ws://your-plugboard:4000/websocket
-   TOKEN=your_plugboard_token
-
-   # Database configuration
-   POSTGRES_USER=auth
-   POSTGRES_PASSWORD=auth
-   POSTGRES_DB_DEVELOPMENT=auth_development
-   POSTGRES_DB_TEST=auth_test
-   POSTGRES_DB_PRODUCTION=auth_production
-   POSTGRES_HOST=localhost
-   POSTGRES_PORT=5432
-
-   # JWT configuration
-   JWT_SECRET=your_jwt_secret_key
-   JWT_ISSUER=auth
-   JWT_AUDIENCE=auth
-
-   # Environment and validation policy
-   ENVIRONMENT=development
-   MIN_NAME_LENGTH=1
-   MAX_NAME_LENGTH=100
-   MIN_USERNAME_LENGTH=1
-   MAX_USERNAME_LENGTH=100
-   MIN_EMAIL_LENGTH=1
-   MAX_EMAIL_LENGTH=100
-   MIN_PASSWORD_LENGTH=1
-   MAX_PASSWORD_LENGTH=100
-   ```
-
-2. **Start the complete stack**:
-   ```bash
-   # Start PostgreSQL and authentication service
-   docker compose up -d
-
-   # View logs
-   docker compose logs -f auth
-   ```
-
-3. **Scale the authentication service**:
-   ```bash
-   # Scale to multiple instances
-   docker compose up -d --scale auth=3
-   ```
-
-#### Manual Docker Deployment
-
 1. **Build the Docker image**:
    ```bash
    docker build -t vera-py-service .
    ```
 
-2. **Run with external PostgreSQL**:
+2. **Run a single container**:
    ```bash
    docker run -e WEBSOCKET_URL="ws://your-plugboard:4000/websocket" \
               -e TOKEN="your_plugboard_token" \
-              -e POSTGRES_USER="auth" \
-              -e POSTGRES_PASSWORD="auth" \
-              -e POSTGRES_DB_DEVELOPMENT="auth_development" \
-              -e POSTGRES_DB_TEST="auth_test" \
-              -e POSTGRES_DB_PRODUCTION="auth_production" \
-              -e POSTGRES_HOST="your-postgres-host" \
+              -e ENVIRONMENT="production" \
+              -e POSTGRES_HOST="your-db-host" \
               -e POSTGRES_PORT="5432" \
-              -e JWT_SECRET="your_jwt_secret" \
-              -e JWT_ISSUER="auth" \
-              -e JWT_AUDIENCE="auth" \
-              -e ENVIRONMENT="development" \
-              -e MIN_NAME_LENGTH="1" \
-              -e MAX_NAME_LENGTH="100" \
-              -e MIN_USERNAME_LENGTH="1" \
-              -e MAX_USERNAME_LENGTH="100" \
-              -e MIN_EMAIL_LENGTH="1" \
-              -e MAX_EMAIL_LENGTH="100" \
-              -e MIN_PASSWORD_LENGTH="1" \
-              -e MAX_PASSWORD_LENGTH="100" \
+              -e POSTGRES_USER="service" \
+              -e POSTGRES_PASSWORD="secure_password" \
+              -e POSTGRES_DB_DEVELOPMENT="service_development" \
+              -e POSTGRES_DB_TEST="service_test" \
+              -e POSTGRES_DB_PRODUCTION="service_production" \
               vera-py-service
    ```
 
 3. **Scale horizontally with multiple containers**:
    ```bash
    # Deploy multiple instances for high availability and load distribution
-   docker run -d --name auth-1 -e WEBSOCKET_URL="ws://your-plugboard:4000/websocket" -e TOKEN="your_plugboard_token" -e POSTGRES_HOST="your-postgres-host" -e JWT_SECRET="your_jwt_secret" vera-py-service
-   docker run -d --name auth-2 -e WEBSOCKET_URL="ws://your-plugboard:4000/websocket" -e TOKEN="your_plugboard_token" -e POSTGRES_HOST="your-postgres-host" -e JWT_SECRET="your_jwt_secret" vera-py-service
-   docker run -d --name auth-3 -e WEBSOCKET_URL="ws://your-plugboard:4000/websocket" -e TOKEN="your_plugboard_token" -e POSTGRES_HOST="your-postgres-host" -e JWT_SECRET="your_jwt_secret" vera-py-service
+   docker run -d --name consumer-1 -e WEBSOCKET_URL="ws://your-plugboard:4000/websocket" -e TOKEN="your_plugboard_token" vera-py-service
+   docker run -d --name consumer-2 -e WEBSOCKET_URL="ws://your-plugboard:4000/websocket" -e TOKEN="your_plugboard_token" vera-py-service
+   docker run -d --name consumer-3 -e WEBSOCKET_URL="ws://your-plugboard:4000/websocket" -e TOKEN="your_plugboard_token" vera-py-service
+   ```
+
+4. **Using Docker Compose for orchestration**:
+   ```yaml
+   py_services:
+     consumer:
+       build: .
+       environment:
+         - WEBSOCKET_URL=ws://your-plugboard:4000/websocket
+         - TOKEN=your_plugboard_token
+         - ENVIRONMENT=production
+         - POSTGRES_HOST=postgres
+         - POSTGRES_PORT=5432
+         - POSTGRES_USER=service
+         - POSTGRES_PASSWORD=service
+         - POSTGRES_DB_DEVELOPMENT=service_development
+         - POSTGRES_DB_TEST=service_test
+         - POSTGRES_DB_PRODUCTION=service_production
+       depends_on:
+         - postgres
+       deploy:
+         replicas: 3  # Scale to 3 instances
    ```
 
 ## Usage
@@ -382,71 +195,6 @@ Since this service acts as a **consumer** in the Plugboard system:
 - **Fault Tolerance**: If one consumer instance fails, others continue processing requests
 - **Easy Scaling**: Simply deploy additional consumer instances to handle increased load
 - **Stateless Design**: Each consumer instance is stateless, making horizontal scaling straightforward
-
-### Authentication Usage Examples
-
-#### User Registration
-```python
-# Register a new user
-register_action = {
-    "action": "Register",
-    "data": {
-        "username": "johndoe",
-        "name": "John Doe",
-        "email": "john@example.com",
-        "phone_number": "+1-555-123-4567",
-        "password": "securepassword123",
-        "expires_at": 1735689600  # Optional: JWT expiration timestamp
-    }
-}
-
-# Response: {"status_code": 201, "fields": {"jwt": "...", "expires_at": 1735689600}}
-```
-
-#### User Login
-```python
-# Login with username
-login_action = {
-    "action": "Login",
-    "data": {
-        "username": "johndoe",
-        "password": "securepassword123"
-    }
-}
-
-# Login with email
-login_action = {
-    "action": "Login",
-    "data": {
-        "email": "john@example.com",
-        "password": "securepassword123"
-    }
-}
-
-# Login with phone number
-login_action = {
-    "action": "Login",
-    "data": {
-        "phone_number": "+15551234567",
-        "password": "securepassword123"
-    }
-}
-
-# Response: {"status_code": 200, "fields": {"jwt": "...", "expires_at": 1735689600}}
-```
-
-#### User Logout
-```python
-# Revoke a JWT token
-logout_action = {
-    "action": "Logout",
-    "data": {
-        "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-    }
-}
-
-# Response: {"status_code": 200, "message": "Token successfully revoked"}
-```
 
 ### Creating Custom Actions
 
@@ -542,47 +290,18 @@ The framework includes robust error handling:
 
 ### Environment Variables
 
-#### Core Service Configuration
-
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
 | `WEBSOCKET_URL` | WebSocket URL for Plugboard connection | Yes | - |
 | `TOKEN` | Authentication token for Plugboard | Yes | - |
-
-#### Database Configuration
-
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `POSTGRES_USER` | PostgreSQL username | Yes | - |
-| `POSTGRES_PASSWORD` | PostgreSQL password | Yes | - |
-| `POSTGRES_DB_DEVELOPMENT` | PostgreSQL database name for development | Yes | - |
-| `POSTGRES_DB_TEST` | PostgreSQL database name for testing | Yes | - |
-| `POSTGRES_DB_PRODUCTION` | PostgreSQL database name for production | Yes | - |
-| `POSTGRES_HOST` | PostgreSQL host | No | localhost |
-| `POSTGRES_PORT` | PostgreSQL port | No | 5432 |
-
-#### JWT Configuration
-
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `JWT_SECRET` | Secret key for JWT signing | Yes | - |
-| `JWT_ALGORITHM` | JWT signing algorithm | No | HS256 |
-| `JWT_ISSUER` | JWT issuer claim | Yes | - |
-| `JWT_AUDIENCE` | JWT audience claim | Yes | - |
-
-#### Environment and Validation Configuration
-
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `ENVIRONMENT` | Current environment (development/test/production) | Yes | - |
-| `MIN_NAME_LENGTH` | Minimum name length | Yes | - |
-| `MAX_NAME_LENGTH` | Maximum name length | Yes | - |
-| `MIN_USERNAME_LENGTH` | Minimum username length | Yes | - |
-| `MAX_USERNAME_LENGTH` | Maximum username length | Yes | - |
-| `MIN_EMAIL_LENGTH` | Minimum email length | Yes | - |
-| `MAX_EMAIL_LENGTH` | Maximum email length | Yes | - |
-| `MIN_PASSWORD_LENGTH` | Minimum password length | Yes | - |
-| `MAX_PASSWORD_LENGTH` | Maximum password length | Yes | - |
+| `ENVIRONMENT` | Environment name (development/test/production) | No | test |
+| `POSTGRES_HOST` | Database host | Yes | - |
+| `POSTGRES_PORT` | Database port | Yes | - |
+| `POSTGRES_USER` | Database username | Yes | - |
+| `POSTGRES_PASSWORD` | Database password | Yes | - |
+| `POSTGRES_DB_DEVELOPMENT` | Development database name | Yes | - |
+| `POSTGRES_DB_TEST` | Test database name | Yes | - |
+| `POSTGRES_DB_PRODUCTION` | Production database name | Yes | - |
 
 ### Example Configuration
 
@@ -590,72 +309,34 @@ The framework includes robust error handling:
 # Development
 export WEBSOCKET_URL="ws://localhost:4000/websocket"
 export TOKEN="dev_token_123"
-export POSTGRES_USER="auth"
-export POSTGRES_PASSWORD="auth"
-export POSTGRES_DB_DEVELOPMENT="auth_development"
-export POSTGRES_DB_TEST="auth_test"
-export POSTGRES_DB_PRODUCTION="auth_production"
+export ENVIRONMENT="development"
 export POSTGRES_HOST="localhost"
 export POSTGRES_PORT="5432"
-export JWT_SECRET="dev_jwt_secret_key"
-export JWT_ISSUER="auth"
-export JWT_AUDIENCE="auth"
-export ENVIRONMENT="development"
-export MIN_NAME_LENGTH="1"
-export MAX_NAME_LENGTH="100"
-export MIN_USERNAME_LENGTH="1"
-export MAX_USERNAME_LENGTH="100"
-export MIN_EMAIL_LENGTH="1"
-export MAX_EMAIL_LENGTH="100"
-export MIN_PASSWORD_LENGTH="1"
-export MAX_PASSWORD_LENGTH="100"
+export POSTGRES_USER="service"
+export POSTGRES_PASSWORD="service"
+export POSTGRES_DB_DEVELOPMENT="service_development"
+export POSTGRES_DB_TEST="service_test"
+export POSTGRES_DB_PRODUCTION="service_production"
 
 # Production
 export WEBSOCKET_URL="wss://plugboard.yourdomain.com/websocket"
 export TOKEN="prod_token_456"
-export POSTGRES_USER="auth"
-export POSTGRES_PASSWORD="secure_production_password"
-export POSTGRES_DB_DEVELOPMENT="auth_development"
-export POSTGRES_DB_TEST="auth_test"
-export POSTGRES_DB_PRODUCTION="auth_production"
-export POSTGRES_HOST="postgres.yourdomain.com"
-export POSTGRES_PORT="5432"
-export JWT_SECRET="secure_production_jwt_secret"
-export JWT_ISSUER="auth"
-export JWT_AUDIENCE="auth"
 export ENVIRONMENT="production"
-export MIN_NAME_LENGTH="1"
-export MAX_NAME_LENGTH="100"
-export MIN_USERNAME_LENGTH="1"
-export MAX_USERNAME_LENGTH="100"
-export MIN_EMAIL_LENGTH="1"
-export MAX_EMAIL_LENGTH="100"
-export MIN_PASSWORD_LENGTH="8"
-export MAX_PASSWORD_LENGTH="128"
+export POSTGRES_HOST="your-db-host"
+export POSTGRES_PORT="5432"
+export POSTGRES_USER="service"
+export POSTGRES_PASSWORD="secure_password"
+export POSTGRES_DB_DEVELOPMENT="service_development"
+export POSTGRES_DB_TEST="service_test"
+export POSTGRES_DB_PRODUCTION="service_production"
 ```
 
 ## Dependencies
 
-### Core Framework
 - **pydantic**: Data validation and serialization
 - **websockets**: WebSocket client implementation
 - **typing-extensions**: Enhanced type hints
 - **annotated-types**: Type annotation utilities
-
-### Authentication & Security
-- **bcrypt**: Password hashing and verification
-- **PyJWT**: JWT token creation and validation
-- **email-validator**: Email address validation
-- **phonenumbers**: International phone number validation and formatting
-
-### Database & ORM
-- **SQLAlchemy**: Database ORM and connection management
-- **alembic**: Database migration management
-- **greenlet**: SQLAlchemy async support
-
-### Additional Utilities
-- **dnspython**: DNS resolution for email validation
-- **idna**: Internationalized domain name support
 
 ## License
 
@@ -671,3 +352,76 @@ This project is licensed under the terms specified in the LICENSE file.
 ## Support
 
 For questions, issues, or contributions, please refer to the project repository or contact the development team.
+
+### Database Integration
+
+The Py-Service template includes a dedicated database component implemented in `core/database.py`. It provides a singleton engine and session management, simple transaction handling, and Alembic-based migrations. Configuration is driven by environment variables, allowing you to switch between development, test, and production databases without changing code.
+
+### Core Component Overview
+
+- Singleton `Database` manager with a SQLAlchemy engine and a session factory
+- Environment-driven database selection via `ENVIRONMENT`
+- Declarative base for models: `base`
+- Context managers for raw sessions (`session`) and transactional work (`transaction`)
+- Migration and teardown helpers: `migrate()` and `teardown()`
+- Alembic configuration via `alembic.ini` and `alembic/env.py` (already included)
+
+### Environment Variables
+
+Configure the database connection using these environment variables:
+
+- POSTGRES_HOST: Database host
+- POSTGRES_PORT: Database port
+- POSTGRES_USER: Database user
+- POSTGRES_PASSWORD: Database password
+- ENVIRONMENT: One of development, test, production
+- POSTGRES_DB_DEVELOPMENT: Development database name
+- POSTGRES_DB_TEST: Test database name
+- POSTGRES_DB_PRODUCTION: Production database name
+
+### Startup and Migrations
+
+Startup example (used by entrypoint.py):
+
+```python
+from core.database import database
+
+database.initialize()
+database.migrate()
+```
+
+### Transactions
+
+Wrap database operations in a transaction to ensure commit/rollback semantics:
+
+```python
+from core.database import database
+
+with database.transaction() as session:
+    # perform ORM operations using `session`
+    # e.g., session.add(model_instance), session.query(...), etc.
+    pass  # replace with real work
+```
+
+### Teardown
+
+To reset the database state (e.g., for tests):
+
+```python
+from core.database import database
+
+database.teardown()
+```
+
+### Alembic CLI
+
+You can also run migrations directly via Alembic CLI:
+
+```bash
+alembic upgrade head
+alembic downgrade base
+```
+
+Notes:
+- Alembic uses the configuration in `Py-Service/alembic.ini` and the migration environment in `Py-Service/alembic/env.py`.
+- The database URL can be derived from environment variables or from the Alembic config, as implemented in `env.py` and the `get_database_url()` function.
