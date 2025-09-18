@@ -27,30 +27,6 @@ class RequestEventTest(TestCase):
             payload = self.payload
         )
 
-    def test_request_event_inherits_from_action_runner(self) -> None:
-        """
-        Test that RequestEvent inherits from ActionRunner.
-
-        Returns:
-            None: This test does not return a value.
-        """
-        from core.action_runner import ActionRunner
-
-        # RequestEvent is always a subclass of ActionRunner by design
-        self.assertIsInstance(RequestEvent, type)
-
-    def test_request_event_payload_inherits_from_action_schema(self) -> None:
-        """
-        Test that RequestEvent.Payload inherits from ActionSchema.
-
-        Returns:
-            None: This test does not return a value.
-        """
-        from core.action_schema import ActionSchema
-
-        # RequestEvent.Payload is always a subclass of ActionSchema by design
-        self.assertIsInstance(RequestEvent.Payload, type)
-
     def test_request_event_has_required_fields(self) -> None:
         """
         Test that RequestEvent has the required fields with correct types.
