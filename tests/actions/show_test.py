@@ -7,13 +7,12 @@ from unittest.mock import MagicMock
 
 from jwt import decode  # type: ignore
 
-from actions.login import Login
 from actions.register import Register
 from actions.show import Show
 from core.database import database
 
 
-class TestShow(TestCase):
+class ShowTest(TestCase):
     """
     Integration test cases for the Database class using real database.
     """

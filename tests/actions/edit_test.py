@@ -7,12 +7,11 @@ from unittest.mock import MagicMock
 from actions.edit import Edit
 from actions.login import Login
 from actions.register import Register
-from core.action_response import ActionResponse
-from core.database import Database, database
+from core.database import database
 from models.user import User
 
 
-class TestEdit(TestCase):
+class EditTest(TestCase):
     """
     Integration test cases for the Database class using real database.
     """

@@ -11,7 +11,7 @@ from actions.register import Register
 from core.database import database
 
 
-class TestRegister(TestCase):
+class RegisterTest(TestCase):
     """
     Integration test cases for the Database class using real database.
     """

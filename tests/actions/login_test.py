@@ -12,7 +12,7 @@ from actions.register import Register
 from core.database import database
 
 
-class TestLogin(TestCase):
+class LoginTest(TestCase):
     """
     Integration test cases for the Database class using real database.
     """

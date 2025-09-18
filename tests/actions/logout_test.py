@@ -14,7 +14,7 @@ from core.database import database
 from models.revocation import Revocation
 
 
-class TestLogout(TestCase):
+class LogoutTest(TestCase):
     """
     Integration test cases for the Database class using real database.
     """
