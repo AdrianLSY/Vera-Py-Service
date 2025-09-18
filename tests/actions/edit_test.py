@@ -61,18 +61,6 @@ class TestEdit(TestCase):
         environ.clear()
         environ.update(self.original_env)
 
-    async def __register_user(self) -> ActionResponse:
-        return await Register(
-            name = "Test User",
-            username = "testuser",
-            email = "testuser@example.com",
-            phone_number = "+12125551234",
-            password = "password123"
-        ).run(
-            client = self.magic_mock,
-            websocket = self.magic_mock
-        )
-
     async def __test_edit_user(self) -> None:
         response = await Register(
             name = "Test User",

@@ -92,6 +92,14 @@ class Show(ActionRunner):
                         message = "User not found"
                     )
 
+                # Extract user data while still in transaction context
+                user_data: Dict[str, Any] = {
+                    "id": user.id,
+                    "username": user.username,
+                    "created_at": int(user.created_at.timestamp()),
+                    "updated_at": int(user.updated_at.timestamp())
+                }
+
         except Exception as e:
             return ActionResponse(
                 status_code = 500,
@@ -101,12 +109,7 @@ class Show(ActionRunner):
         return ActionResponse(
             status_code = 200,
             fields = {
-                "user": {
-                    "id": user.id,
-                    "username": user.username,
-                    "created_at": int(user.created_at.timestamp()),
-                    "updated_at": int(user.updated_at.timestamp()),
-                    },
+                "user": user_data,
                 "claims": claims
             }
         )
