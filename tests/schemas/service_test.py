@@ -5,7 +5,7 @@ from unittest import TestCase
 from schemas.service import Service
 
 
-class TestService(TestCase):
+class ServiceTest(TestCase):
     """Test cases for Service action_schema class."""
 
     service: Service  # type: ignore
