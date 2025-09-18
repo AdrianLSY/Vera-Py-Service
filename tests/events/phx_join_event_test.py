@@ -7,7 +7,7 @@ from core.action_response import ActionResponse
 from events.phx_join_event import PhxJoinEvent
 
 
-class TestPhxJoinEvent(TestCase):
+class PhxJoinEventTest(TestCase):
     """Test cases for PhxJoinEvent class."""
 
     phx_join_event: PhxJoinEvent  # type: ignore
@@ -16,30 +16,6 @@ class TestPhxJoinEvent(TestCase):
     def setUp(self) -> None:
         """Set up test fixtures."""
         self.phx_join_event = PhxJoinEvent(topic = "test_topic")
-
-    def test_phx_join_event_inherits_from_action_runner(self) -> None:
-        """
-        Test that PhxJoinEvent inherits from ActionRunner.
-
-        Returns:
-            None: This test does not return a value.
-        """
-        from core.action_runner import ActionRunner
-
-        # PhxJoinEvent is always a subclass of ActionRunner by design
-        self.assertIsInstance(PhxJoinEvent, type)
-
-    def test_phx_join_event_payload_inherits_from_action_schema(self) -> None:
-        """
-        Test that PhxJoinEvent.Payload inherits from ActionSchema.
-
-        Returns:
-            None: This test does not return a value.
-        """
-        from core.action_schema import ActionSchema
-
-        # PhxJoinEvent.Payload is always a subclass of ActionSchema by design
-        self.assertIsInstance(PhxJoinEvent.Payload, type)
 
     def test_phx_join_event_has_required_fields(self) -> None:
         """

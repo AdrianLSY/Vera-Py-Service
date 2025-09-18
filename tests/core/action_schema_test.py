@@ -7,7 +7,7 @@ from pydantic import Field, ValidationError
 from core.action_schema import ActionSchema
 
 
-class TestActionSchema(TestCase):
+class ActionSchemaTest(TestCase):
     """Test cases for ActionSchema base class."""
 
     test_action_class: type[ActionSchema]  # type: ignore
