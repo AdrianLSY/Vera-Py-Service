@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
 
 
-class TestActionRegistry(TestCase):
+class ActionRegistryTest(TestCase):
     """Test cases for ActionRegistry class."""
 
     test_action_schema: type[ActionSchema]  # type: ignore

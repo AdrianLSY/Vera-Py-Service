@@ -7,7 +7,7 @@ from core.action_response import ActionResponse
 from events.phx_join_event import PhxJoinEvent
 
 
-class TestPhxJoinEvent(TestCase):
+class PhxJoinEventTest(TestCase):
     """Test cases for PhxJoinEvent class."""
 
     phx_join_event: PhxJoinEvent  # type: ignore

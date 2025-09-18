@@ -7,7 +7,7 @@ from core.action_response import ActionResponse
 from events.request_event import RequestEvent
 
 
-class TestRequestEvent(TestCase):
+class RequestEventTest(TestCase):
     """Test cases for RequestEvent class."""
 
     payload: RequestEvent.Payload  # type: ignore

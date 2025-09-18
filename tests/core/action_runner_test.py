@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
 
 
-class TestActionRunner(TestCase):
+class ActionRunnerTest(TestCase):
     """Test cases for ActionRunner base class."""
 
     test_runner_class: type[ActionRunner]  # type: ignore

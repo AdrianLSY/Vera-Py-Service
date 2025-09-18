@@ -3,7 +3,7 @@ from unittest import TestCase
 from core.action_response import ActionResponse
 
 
-class TestActionResponse(TestCase):
+class ActionResponseTest(TestCase):
     """Test cases for ActionResponse class."""
 
     def test_action_response_creation_with_required_fields(self) -> None:

@@ -5,7 +5,7 @@ from unittest import TestCase
 from schemas.token import Token
 
 
-class TestToken(TestCase):
+class TokenTest(TestCase):
     """Test cases for Token action_schema class."""
 
     token: Token  # type: ignore

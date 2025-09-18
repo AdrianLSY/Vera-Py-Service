@@ -10,7 +10,7 @@ from schemas.service import Service
 from schemas.token import Token
 
 
-class TestPlugboardClient(TestCase):
+class PlugboardClientTest(TestCase):
     """Test cases for PlugboardClient class."""
 
     client: PlugboardClient  # type: ignore
