@@ -24,8 +24,14 @@ def _get_env_int(var_name: str, default: int) -> int:
     return int(value) if value is not None else default
 
 class Edit(ActionRunner):
-    jwt: str = Field(
-        description = "The JWT token for authentication"
+    jwt: Union[str, None] = Field(
+        description = "Optional JWT token to query the user. pass this or user_id,",
+        default = None
+    )
+
+    user_id: Union[int, None] = Field(
+        description = "Optional user ID to query the user. pass this or the jwt",
+        default = None
     )
 
     username: Union[str, None] = Field(
@@ -96,16 +102,7 @@ class Edit(ActionRunner):
     def description(cls) -> str:
         return "Updates user username and/or password using JWT authentication"
 
-    @override
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
-
-        # validate that at least one field is provided
-        if self.username is None and self.name is None and self.email is None and self.phone_number is None and self.password is None:
-            return ActionResponse(
-                status_code = 400,
-                message = "At least one field (username, name, email, phone_number, or password) must be provided"
-            )
-
+    def __validate_jwt(self) -> Union[int, ActionResponse]:
         # decode and validate JWT
         secret = getenv("JWT_SECRET")
         if not secret:
@@ -144,20 +141,57 @@ class Edit(ActionRunner):
                 message = f"Token validation error: {str(e)}"
             )
 
-        # check if token is revoked
-        try:
-            with database.transaction() as db:
-                revoked = db.query(
+        with database.transaction() as db:
+            revoked = db.query(
                     Revocation
                 ).filter(
                     Revocation.jti == jti
                 ).first()
 
-                if revoked:
-                    return ActionResponse(
-                        status_code = 401,
-                        message = "Token has been revoked"
-                    )
+        if revoked:
+            return ActionResponse(
+                status_code = 401,
+                message = "Token has been revoked"
+            )
+
+        return int(user_id)
+
+    @override
+    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
+        user_id = self.user_id
+
+        # validate if jwt or user_id is provided
+        if self.jwt is None and self.user_id is None:
+            return ActionResponse(
+                status_code = 400,
+                message = "Either JWT or user_id must be provided"
+            )
+
+        # validate that at least one field is provided
+        if self.username is None and self.name is None and self.email is None and self.phone_number is None and self.password is None:
+            return ActionResponse(
+                status_code = 400,
+                message = "At least one field (username, name, email, phone_number, or password) must be provided"
+            )
+
+        if self.jwt is not None:
+            response = self.__validate_jwt()
+            if isinstance(response, ActionResponse):
+                return response
+
+            jwt_user_id = response
+
+            # If user_id is also provided, check consistency
+            if user_id is not None and jwt_user_id != user_id:
+                return ActionResponse(
+                    status_code = 401,
+                    message = "user id is not consistent between JWT and user_id"
+                )
+
+            user_id = jwt_user_id
+
+        try:
+            with database.transaction() as db:
 
                 # get user
                 user = db.query(User).filter(

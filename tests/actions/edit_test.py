@@ -345,6 +345,404 @@ class EditTest(TestCase):
     def test_edit_password(self) -> None:
         run(self.__test_edit_password())
 
+    async def __test_edit_user_with_user_id(self) -> None:
+        response = await Register(
+            name = "Test User ID",
+            username = "testuser_id",
+            email = "testuser_id@example.com",
+            phone_number = "+12125551234",
+            password = "password123"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        if response.fields is None:
+            raise ValueError(f"Register failed: {response.message}")
+
+        # Get user_id from database
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "testuser_id"
+            ).first()
+            user_id = user.id  # type: ignore
+
+        response = await Edit(
+            user_id = user_id,
+            name = "Edited User ID",
+            username = "editeduser_id",
+            email = "editeduser_id@example.com",
+            phone_number = "+12123451234",
+            password = "password456"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        assert response.status_code == 200
+        assert response.message == "User updated successfully"
+        assert response.fields == None
+
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "editeduser_id"
+            ).first()
+            assert user.name == "Edited User ID"  # type: ignore
+            assert user.username == "editeduser_id"  # type: ignore
+            assert user.email == "editeduser_id@example.com"  # type: ignore
+            assert user.phone_number == "+12123451234"  # type: ignore
+
+        response = await Login(
+            username = "editeduser_id",
+            password = "password456"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+        assert response.status_code == 200
+        assert response.message == None
+        assert response.fields is not None
+        assert "jwt" in response.fields
+
+    def test_edit_user_with_user_id(self) -> None:
+        run(self.__test_edit_user_with_user_id())
+
+    async def __test_edit_name_with_user_id(self) -> None:
+        response = await Register(
+            name = "Test User ID Name",
+            username = "testuser_id_name",
+            email = "testuser_id_name@example.com",
+            phone_number = "+12125551234",
+            password = "password123"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        # Get user_id from database
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "testuser_id_name"
+            ).first()
+            user_id = user.id  # type: ignore
+
+        response = await Edit(
+            user_id = user_id,
+            name = "Updated Name ID"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        assert response.status_code == 200
+        assert response.message == "User updated successfully"
+        assert response.fields == None
+
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "testuser_id_name"
+            ).first()
+            assert user.name == "Updated Name ID"  # type: ignore
+            assert user.username == "testuser_id_name"  # type: ignore
+            assert user.email == "testuser_id_name@example.com"  # type: ignore
+            assert user.phone_number == "+12125551234"  # type: ignore
+
+    def test_edit_name_with_user_id(self) -> None:
+        run(self.__test_edit_name_with_user_id())
+
+    async def __test_edit_username_with_user_id(self) -> None:
+        response = await Register(
+            name = "Test User ID Username",
+            username = "testuser_id_username",
+            email = "testuser_id_username@example.com",
+            phone_number = "+12125551234",
+            password = "password123"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        # Get user_id from database
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "testuser_id_username"
+            ).first()
+            user_id = user.id  # type: ignore
+
+        response = await Edit(
+            user_id = user_id,
+            username = "updateduser_id"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        assert response.status_code == 200
+        assert response.message == "User updated successfully"
+        assert response.fields == None
+
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "updateduser_id"
+            ).first()
+            assert user.name == "Test User ID Username"  # type: ignore
+            assert user.username == "updateduser_id"  # type: ignore
+            assert user.email == "testuser_id_username@example.com"  # type: ignore
+            assert user.phone_number == "+12125551234"  # type: ignore
+
+        # Test login with new username
+        response = await Login(
+            username = "updateduser_id",
+            password = "password123"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+        assert response.status_code == 200
+        assert response.message == None
+        assert response.fields is not None
+        assert "jwt" in response.fields
+
+    def test_edit_username_with_user_id(self) -> None:
+        run(self.__test_edit_username_with_user_id())
+
+    async def __test_edit_email_with_user_id(self) -> None:
+        response = await Register(
+            name = "Test User ID Email",
+            username = "testuser_id_email",
+            email = "testuser_id_email@example.com",
+            phone_number = "+12125551234",
+            password = "password123"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        # Get user_id from database
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "testuser_id_email"
+            ).first()
+            user_id = user.id  # type: ignore
+
+        response = await Edit(
+            user_id = user_id,
+            email = "updated_id@example.com"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        assert response.status_code == 200
+        assert response.message == "User updated successfully"
+        assert response.fields == None
+
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "testuser_id_email"
+            ).first()
+            assert user.name == "Test User ID Email"  # type: ignore
+            assert user.username == "testuser_id_email"  # type: ignore
+            assert user.email == "updated_id@example.com"  # type: ignore
+            assert user.phone_number == "+12125551234"  # type: ignore
+
+    def test_edit_email_with_user_id(self) -> None:
+        run(self.__test_edit_email_with_user_id())
+
+    async def __test_edit_phone_number_with_user_id(self) -> None:
+        response = await Register(
+            name = "Test User ID Phone",
+            username = "testuser_id_phone",
+            email = "testuser_id_phone@example.com",
+            phone_number = "+12125551234",
+            password = "password123"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        # Get user_id from database
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "testuser_id_phone"
+            ).first()
+            user_id = user.id  # type: ignore
+
+        response = await Edit(
+            user_id = user_id,
+            phone_number = "+12129999999"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        assert response.status_code == 200
+        assert response.message == "User updated successfully"
+        assert response.fields == None
+
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "testuser_id_phone"
+            ).first()
+            assert user.name == "Test User ID Phone"  # type: ignore
+            assert user.username == "testuser_id_phone"  # type: ignore
+            assert user.email == "testuser_id_phone@example.com"  # type: ignore
+            assert user.phone_number == "+12129999999"  # type: ignore
+
+    def test_edit_phone_number_with_user_id(self) -> None:
+        run(self.__test_edit_phone_number_with_user_id())
+
+    async def __test_edit_password_with_user_id(self) -> None:
+        response = await Register(
+            name = "Test User ID Password",
+            username = "testuser_id_password",
+            email = "testuser_id_password@example.com",
+            phone_number = "+12125551234",
+            password = "password123"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        # Get user_id from database
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "testuser_id_password"
+            ).first()
+            user_id = user.id  # type: ignore
+
+        response = await Edit(
+            user_id = user_id,
+            password = "newpassword_id123"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        assert response.status_code == 200
+        assert response.message == "User updated successfully"
+        assert response.fields == None
+
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "testuser_id_password"
+            ).first()
+            assert user.name == "Test User ID Password"  # type: ignore
+            assert user.username == "testuser_id_password"  # type: ignore
+            assert user.email == "testuser_id_password@example.com"  # type: ignore
+            assert user.phone_number == "+12125551234"  # type: ignore
+
+        # Test login with new password
+        response = await Login(
+            username = "testuser_id_password",
+            password = "newpassword_id123"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+        assert response.status_code == 200
+        assert response.message == None
+        assert response.fields is not None
+        assert "jwt" in response.fields
+
+    def test_edit_password_with_user_id(self) -> None:
+        run(self.__test_edit_password_with_user_id())
+
+    async def __test_edit_with_jwt_and_user_id_consistency(self) -> None:
+        response = await Register(
+            name = "Test Consistency",
+            username = "testuser_consistency",
+            email = "testuser_consistency@example.com",
+            phone_number = "+12125551234",
+            password = "password123"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        if response.fields is None:
+            raise ValueError(f"Register failed: {response.message}")
+
+        fields = cast(Dict[str, Any], response.fields)
+        jwt = fields["jwt"]
+
+        # Get user_id from database
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "testuser_consistency"
+            ).first()
+            user_id = user.id  # type: ignore
+
+        # Test with consistent JWT and user_id
+        response = await Edit(
+            jwt = jwt,
+            user_id = user_id,
+            name = "Consistent Update"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        assert response.status_code == 200
+        assert response.message == "User updated successfully"
+
+        with database.session() as session:
+            user = session.query(User).filter(
+                User.username == "testuser_consistency"
+            ).first()
+            assert user.name == "Consistent Update"  # type: ignore
+
+    def test_edit_with_jwt_and_user_id_consistency(self) -> None:
+        run(self.__test_edit_with_jwt_and_user_id_consistency())
+
+    async def __test_edit_with_jwt_and_user_id_inconsistency(self) -> None:
+        response = await Register(
+            name = "Test Inconsistency",
+            username = "testuser_inconsistency",
+            email = "testuser_inconsistency@example.com",
+            phone_number = "+12125551234",
+            password = "password123"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        if response.fields is None:
+            raise ValueError(f"Register failed: {response.message}")
+
+        fields = cast(Dict[str, Any], response.fields)
+        jwt = fields["jwt"]
+
+        # Test with inconsistent JWT and user_id (different user_id)
+        response = await Edit(
+            jwt = jwt,
+            user_id = 99999,  # Different user_id
+            name = "Inconsistent Update"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        assert response.status_code == 401
+        assert response.message == "user id is not consistent between JWT and user_id"
+
+    def test_edit_with_jwt_and_user_id_inconsistency(self) -> None:
+        run(self.__test_edit_with_jwt_and_user_id_inconsistency())
+
+    async def __test_edit_without_jwt_or_user_id(self) -> None:
+        response = await Edit(
+            name = "No Auth Update"
+        ).run(
+            client = self.magic_mock,
+            websocket = self.magic_mock
+        )
+
+        assert response.status_code == 400
+        assert response.message == "Either JWT or user_id must be provided"
+
+    def test_edit_without_jwt_or_user_id(self) -> None:
+        run(self.__test_edit_without_jwt_or_user_id())
+
 
 if __name__ == "__main__":
     main()

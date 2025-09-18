@@ -32,6 +32,7 @@ def main() -> None:
     """Run all test modules."""
     # List of test modules to run
     test_modules: List[str] = [
+        "tests.actions.delete_test",
         "tests.actions.edit_test",
         "tests.actions.login_test",
         "tests.actions.logout_test",
