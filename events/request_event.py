@@ -1,12 +1,12 @@
 from json import dumps
 from typing import TYPE_CHECKING, Any, Literal, override
 
-from pydantic import Field
+from pydantic import Field, ValidationError
 from websockets import ClientConnection
 
-from core.action_schema import ActionSchema
 from core.action_response import ActionResponse
 from core.action_runner import ActionRunner
+from core.action_schema import ActionSchema
 
 if TYPE_CHECKING:
     from core.plugboard_client import PlugboardClient
@@ -62,6 +62,11 @@ class RequestEvent(ActionRunner):
             response = ActionResponse(
                 status_code = 404,
                 message = f"Unknown action: {self.payload.action}",
+            )
+        except ValidationError:
+            response = ActionResponse(
+                status_code = 400,
+                message = "Invalid request. Please check the required fields and try again."
             )
         except Exception:
             response = ActionResponse(
