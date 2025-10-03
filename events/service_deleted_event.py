@@ -1,17 +1,12 @@
-from typing import TYPE_CHECKING, Literal, override
+from typing import Literal
 
 from pydantic import Field
-from websockets import ClientConnection
 
 from core.action_schema import ActionSchema
-from core.action_response import ActionResponse
-from core.action_runner import ActionRunner
+from core.action_event import ActionEvent
 from schemas.service import Service
 
-if TYPE_CHECKING:
-    from core.plugboard_client import PlugboardClient
-
-class ServiceDeletedEvent(ActionRunner):
+class ServiceDeletedEvent(ActionEvent):
     """
     Represents an event indicating that a service has been deleted.
 
@@ -31,7 +26,6 @@ class ServiceDeletedEvent(ActionRunner):
         service: Service = Field(description = "The service information that was deleted.")
 
         @classmethod
-        @override
         def description(cls) -> str:
             return "Represents the payload for a service deletion event."
 
@@ -41,16 +35,9 @@ class ServiceDeletedEvent(ActionRunner):
     payload: Payload = Field(description = "The payload containing the service information that was deleted.")
 
     @classmethod
-    @override
     def discriminator(cls) -> str:
         return "service_deleted"
 
     @classmethod
-    @override
     def description(cls) -> str:
         return "Represents an event indicating that a service has been deleted."
-
-    @override
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
-        await websocket.close()
-        raise ConnectionAbortedError

@@ -1,17 +1,12 @@
-from typing import TYPE_CHECKING, Literal, override
+from typing import Literal
 
 from pydantic import Field
-from websockets import ClientConnection
 
 from core.action_schema import ActionSchema
-from core.action_response import ActionResponse
-from core.action_runner import ActionRunner
+from core.action_event import ActionEvent
 from schemas.token import Token
 
-if TYPE_CHECKING:
-    from core.plugboard_client import PlugboardClient
-
-class TokenCreatedEvent(ActionRunner):
+class TokenCreatedEvent(ActionEvent):
     """
     Represents an event indicating that a token has been created.
 
@@ -31,7 +26,6 @@ class TokenCreatedEvent(ActionRunner):
         token: Token = Field(description = "The token information.")
 
         @classmethod
-        @override
         def description(cls) -> str:
             return "Represents the payload for a token event."
 
@@ -41,18 +35,9 @@ class TokenCreatedEvent(ActionRunner):
     payload: Payload = Field(description = "The payload containing the token information.")
 
     @classmethod
-    @override
     def discriminator(cls) -> str:
         return "token_created"
 
     @classmethod
-    @override
     def description(cls) -> str:
         return "Represents an event indicating that a token has been created."
-
-    @override
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
-        client.token = self.payload.token
-        return ActionResponse(
-            status_code = 200
-        )

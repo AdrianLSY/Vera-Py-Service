@@ -1,17 +1,12 @@
-from typing import TYPE_CHECKING, Literal, override
+from typing import Literal
 
 from pydantic import Field
-from websockets import ClientConnection
 
 from core.action_schema import ActionSchema
-from core.action_response import ActionResponse
-from core.action_runner import ActionRunner
+from core.action_event import ActionEvent
 from schemas.service import Service
 
-if TYPE_CHECKING:
-    from core.plugboard_client import PlugboardClient
-
-class ServiceUpdatedEvent(ActionRunner):
+class ServiceUpdatedEvent(ActionEvent):
     """
     Represents an event indicating that a service has been updated.
 
@@ -31,7 +26,6 @@ class ServiceUpdatedEvent(ActionRunner):
         service: Service = Field(description = "The updated service information.")
 
         @classmethod
-        @override
         def description(cls) -> str:
             return "Represents the payload for a service update event."
 
@@ -41,18 +35,9 @@ class ServiceUpdatedEvent(ActionRunner):
     payload: Payload = Field(description = "The payload containing updated service information.")
 
     @classmethod
-    @override
     def discriminator(cls) -> str:
         return "service_updated"
 
     @classmethod
-    @override
     def description(cls) -> str:
         return "Represents an event indicating that a service has been updated."
-
-    @override
-    async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
-        client.service = self.payload.service
-        return ActionResponse(
-            status_code = 200
-        )
