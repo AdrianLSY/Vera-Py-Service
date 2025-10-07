@@ -8,7 +8,7 @@ from schemas.token import Token
 class TokenTest(TestCase):
     """Test cases for Token action_schema class."""
 
-    token: Token  # type: ignore
+    token: Token # type: ignore
 
     @override
     def setUp(self) -> None:
@@ -219,7 +219,7 @@ class TokenTest(TestCase):
         # Invalid data should raise ValidationError
         from pydantic import ValidationError
         with self.assertRaises(ValidationError):
-            Token(id = "not_an_int")  # type: ignore  # id should be int or None
+            Token(id = "not_an_int") # type: ignore  # id should be int or None
 
     def test_token_json_serialization(self) -> None:
         """

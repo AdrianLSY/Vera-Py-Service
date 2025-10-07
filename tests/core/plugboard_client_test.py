@@ -13,7 +13,7 @@ from schemas.token import Token
 class PlugboardClientTest(TestCase):
     """Test cases for PlugboardClient class."""
 
-    client: PlugboardClient  # type: ignore
+    client: PlugboardClient # type: ignore
 
     @override
     def setUp(self) -> None:
@@ -240,7 +240,7 @@ class PlugboardClientTest(TestCase):
             # Mock print to capture output
             with patch('builtins.print') as mock_print:
                 # Type ignore for private method access
-                await self.client._PlugboardClient__loop(mock_websocket)  # type: ignore
+                await self.client._PlugboardClient__loop(mock_websocket) # type: ignore
 
                 # Should print "Invalid JSON"
                 mock_print.assert_called_with("Invalid JSON")
@@ -265,7 +265,7 @@ class PlugboardClientTest(TestCase):
             # Mock print to capture output
             with patch('builtins.print') as mock_print:
                 # Type ignore for private method access
-                await self.client._PlugboardClient__loop(mock_websocket)  # type: ignore
+                await self.client._PlugboardClient__loop(mock_websocket) # type: ignore
 
                 # Should print "Invalid message"
                 mock_print.assert_called_with("Invalid message")
@@ -293,7 +293,7 @@ class PlugboardClientTest(TestCase):
             with patch.dict(self.client.events, {"test_event": MagicMock(side_effect=ValidationError.from_exception_data("TestError", []))}):
                 with patch('builtins.print') as mock_print:
                     # Type ignore for private method access
-                    await self.client._PlugboardClient__loop(mock_websocket)  # type: ignore
+                    await self.client._PlugboardClient__loop(mock_websocket) # type: ignore
 
                     # Should print validation error
                     mock_print.assert_called()
@@ -314,7 +314,7 @@ class PlugboardClientTest(TestCase):
             mock_websocket.recv.side_effect = ConnectionClosed(None, None)
 
             # Type ignore for private method access
-            await self.client._PlugboardClient__loop(mock_websocket)  # type: ignore
+            await self.client._PlugboardClient__loop(mock_websocket) # type: ignore
 
             # Should set connected to False
             self.assertFalse(self.client.connected)
@@ -333,7 +333,7 @@ class PlugboardClientTest(TestCase):
             mock_websocket.recv.side_effect = ConnectionAbortedError()
 
             # Type ignore for private method access
-            await self.client._PlugboardClient__loop(mock_websocket)  # type: ignore
+            await self.client._PlugboardClient__loop(mock_websocket) # type: ignore
 
             # Should set connected to False
             self.assertFalse(self.client.connected)
@@ -358,7 +358,7 @@ class PlugboardClientTest(TestCase):
         # Invalid data should raise ValidationError
         from pydantic import ValidationError
         with self.assertRaises(ValidationError):
-            PlugboardClient(num_consumers = "not_an_int")  # type: ignore
+            PlugboardClient(num_consumers = "not_an_int") # type: ignore
 
     def test_plugboard_client_json_serialization(self) -> None:
         """

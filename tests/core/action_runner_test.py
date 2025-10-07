@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class ActionRunnerTest(TestCase):
     """Test cases for ActionRunner base class."""
 
-    test_runner_class: type[ActionRunner]  # type: ignore
+    test_runner_class: type[ActionRunner] # type: ignore
 
     @override
     def setUp(self) -> None:
@@ -58,7 +58,7 @@ class ActionRunnerTest(TestCase):
 
             # This should raise TypeError due to abstract method
             # We need to suppress the linter warning since this is intentional
-            IncompleteRunner()  # type: ignore
+            IncompleteRunner() # type: ignore
 
     def test_action_runner_description_implementation(self) -> None:
         """Test that ActionRunner requires description implementation."""
@@ -71,7 +71,7 @@ class ActionRunnerTest(TestCase):
 
             # This should raise TypeError due to abstract method
             # We need to suppress the linter warning since this is intentional
-            IncompleteRunner()  # type: ignore
+            IncompleteRunner() # type: ignore
 
     def test_action_runner_discriminator(self) -> None:
         """Test ActionRunner discriminator method."""
@@ -165,7 +165,7 @@ class ActionRunnerTest(TestCase):
 
             # This should raise TypeError due to abstract method
             # We need to suppress the linter warning since this is intentional
-            AbstractRunner()  # type: ignore
+            AbstractRunner() # type: ignore
 
     def test_action_runner_with_nested_schemas(self) -> None:
         """Test ActionRunner with nested ActionSchema fields."""
