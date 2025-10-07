@@ -122,8 +122,6 @@ class ActionResponseTest(TestCase):
         Returns:
             None: This test does not return a value.
         """
-        from core.action_schema import ActionSchema
-
         # ActionResponse is always a subclass of ActionSchema by design
         self.assertIsInstance(ActionResponse, type)
 

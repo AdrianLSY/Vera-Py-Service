@@ -227,7 +227,7 @@ class RequestEventTest(TestCase):
         # Invalid data should raise ValidationError
         from pydantic import ValidationError
         with self.assertRaises(ValidationError):
-            RequestEvent(topic = 123, payload = payload)  # topic should be string
+            RequestEvent(topic = 123, payload = payload)  # type: ignore  # topic should be string
 
     def test_request_event_payload_field_validation(self) -> None:
         """
@@ -247,7 +247,7 @@ class RequestEventTest(TestCase):
         # Invalid data should raise ValidationError
         from pydantic import ValidationError
         with self.assertRaises(ValidationError):
-            RequestEvent.Payload(action = 123, fields = {})  # action should be string
+            RequestEvent.Payload(action = 123, fields = {})  # type: ignore  # action should be string
 
     def test_request_event_json_serialization(self) -> None:
         """
