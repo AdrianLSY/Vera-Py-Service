@@ -124,7 +124,8 @@ class ActionSchemaTest(TestCase):
                 # Missing description() implementation
 
             # This should raise TypeError due to abstract method
-            IncompleteAction(name = "test")
+            # We need to suppress the linter warning since this is intentional
+            IncompleteAction(name = "test")  # type: ignore
 
     def test_nested_action_schema_fields(self) -> None:
         """
@@ -172,7 +173,9 @@ class ActionSchemaTest(TestCase):
         Returns:
             None: This test does not return a value.
         """
-        instance = self.test_action_class(name = "test", value = 100)
+        # Cast to the specific test action type to help the linter
+        test_action_class = cast(type, self.test_action_class)
+        instance = test_action_class(name = "test", value = 100)
 
         # Type assertions to help the linter
         name = cast(str, instance.name)
@@ -190,7 +193,9 @@ class ActionSchemaTest(TestCase):
         Returns:
             None: This test does not return a value.
         """
-        instance = self.test_action_class(name = "test")
+        # Cast to the specific test action type to help the linter
+        test_action_class = cast(type, self.test_action_class)
+        instance = test_action_class(name = "test")
 
         # Type assertions to help the linter
         name = cast(str, instance.name)
@@ -208,8 +213,10 @@ class ActionSchemaTest(TestCase):
         Returns:
             None: This test does not return a value.
         """
+        # Cast to the specific test action type to help the linter
+        test_action_class = cast(type, self.test_action_class)
         with self.assertRaises(ValidationError):
-            self.test_action_class(name = "test", value = "not_an_int")
+            test_action_class(name = "test", value = "not_an_int")
 
     def test_to_json_schema_consistency(self) -> None:
         """

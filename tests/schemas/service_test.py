@@ -27,8 +27,6 @@ class ServiceTest(TestCase):
         Returns:
             None: This test does not return a value.
         """
-        from core.action_schema import ActionSchema
-
         # Service is always a subclass of ActionSchema by design
         self.assertIsInstance(Service, type)
 
@@ -155,7 +153,7 @@ class ServiceTest(TestCase):
         from pydantic import ValidationError
         with self.assertRaises(ValidationError):
             Service(
-                id = "not_an_int",
+                id = "not_an_int",  # type: ignore
                 name = "Test Service",
                 inserted_at = datetime.now(),
                 updated_at = datetime.now()

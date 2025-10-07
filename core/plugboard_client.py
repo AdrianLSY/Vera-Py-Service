@@ -1,5 +1,5 @@
 from json import JSONDecodeError, dumps, loads
-from typing import Any, Type
+from typing import Type
 from urllib.parse import quote
 
 from pydantic import BaseModel, Field, ValidationError
@@ -7,6 +7,7 @@ from websockets import ClientConnection, ConnectionClosed, connect
 
 from core.action_registry import ActionRegistry
 from core.action_runner import ActionRunner
+from core.action_schema import ActionSchema
 from events.phx_join_event import PhxJoinEvent
 from schemas.service import Service
 from schemas.token import Token
@@ -32,15 +33,18 @@ class PlugboardClient(BaseModel):
     token: Token = Field(default = Token())
     num_consumers: int = Field(default = 0)
     connected: bool = Field(default = False)
-    events: dict[str, Type[ActionRunner]] = Field(default_factory = lambda: ActionRegistry.discover("events", ActionRunner))
-    actions: dict[str, Type[ActionRunner]] = Field(default_factory = lambda: ActionRegistry.discover("actions", ActionRunner))
+    events: dict[str, Type[ActionSchema]] = Field(default_factory = lambda: ActionRegistry.discover("events", ActionRunner))
+    actions: dict[str, Type[ActionSchema]] = Field(default_factory = lambda: ActionRegistry.discover("actions", ActionRunner))
 
     async def __loop(self, websocket: ClientConnection) -> None:
         await websocket.send(PhxJoinEvent(topic = "service").model_dump_json())
         while self.connected:
             try:
                 message = loads(await websocket.recv())
-                await self.events[message["event"]](**message).run(self, websocket)
+                event_class = self.events[message["event"]]
+                event_instance = event_class(**message)
+                # Cast to ActionRunner since we know the discovered classes inherit from ActionRunner
+                await event_instance.run(self, websocket)  # type: ignore
             except JSONDecodeError:
                 print("Invalid JSON")
             except KeyError:

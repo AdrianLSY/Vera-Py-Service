@@ -57,7 +57,8 @@ class ActionRunnerTest(TestCase):
                 # Missing run() implementation
 
             # This should raise TypeError due to abstract method
-            IncompleteRunner()
+            # We need to suppress the linter warning since this is intentional
+            IncompleteRunner()  # type: ignore
 
     def test_action_runner_description_implementation(self) -> None:
         """Test that ActionRunner requires description implementation."""
@@ -69,7 +70,8 @@ class ActionRunnerTest(TestCase):
                 # Missing description() implementation
 
             # This should raise TypeError due to abstract method
-            IncompleteRunner()
+            # We need to suppress the linter warning since this is intentional
+            IncompleteRunner()  # type: ignore
 
     def test_action_runner_discriminator(self) -> None:
         """Test ActionRunner discriminator method."""
@@ -108,7 +110,9 @@ class ActionRunnerTest(TestCase):
 
     def test_action_runner_instance_creation(self) -> None:
         """Test creating ActionRunner instances."""
-        instance = self.test_runner_class(name = "test_instance", value = 100)
+        # Cast to the specific test runner type to help the linter
+        test_runner_class = cast(type, self.test_runner_class)
+        instance = test_runner_class(name = "test_instance", value = 100)
 
         # Type assertions to help the linter
         name = cast(str, instance.name)
@@ -119,7 +123,9 @@ class ActionRunnerTest(TestCase):
 
     def test_action_runner_run_method_returns_action_response(self) -> None:
         """Test that run method returns ActionResponse."""
-        instance = self.test_runner_class(name = "test", value = 42)
+        # Cast to the specific test runner type to help the linter
+        test_runner_class = cast(type, self.test_runner_class)
+        instance = test_runner_class(name = "test", value = 42)
         mock_client = Mock()
         mock_websocket = Mock()
 
@@ -158,7 +164,8 @@ class ActionRunnerTest(TestCase):
                 # run method not implemented
 
             # This should raise TypeError due to abstract method
-            AbstractRunner()
+            # We need to suppress the linter warning since this is intentional
+            AbstractRunner()  # type: ignore
 
     def test_action_runner_with_nested_schemas(self) -> None:
         """Test ActionRunner with nested ActionSchema fields."""
@@ -201,7 +208,9 @@ class ActionRunnerTest(TestCase):
     def test_action_runner_validation(self) -> None:
         """Test ActionRunner field validation."""
         # Valid data should work
-        instance = self.test_runner_class(name = "valid", value = 100)
+        # Cast to the specific test runner type to help the linter
+        test_runner_class = cast(type, self.test_runner_class)
+        instance = test_runner_class(name = "valid", value = 100)
 
         # Type assertions to help the linter
         name = cast(str, instance.name)
@@ -213,7 +222,7 @@ class ActionRunnerTest(TestCase):
         # Invalid data should raise ValidationError
         from pydantic import ValidationError
         with self.assertRaises(ValidationError):
-            self.test_runner_class(name = "valid", value = "not_an_int")
+            test_runner_class(name = "valid", value = "not_an_int")
 
 
 if __name__ == "__main__":
