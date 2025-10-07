@@ -18,8 +18,8 @@ if TYPE_CHECKING:
 class ActionRegistryTest(TestCase):
     """Test cases for ActionRegistry class."""
 
-    test_action_schema: type[ActionSchema]  # type: ignore
-    test_action_runner: type[ActionRunner]  # type: ignore
+    test_action_schema: type[ActionSchema] # type: ignore
+    test_action_runner: type[ActionRunner] # type: ignore
 
     @override
     def setUp(self) -> None:

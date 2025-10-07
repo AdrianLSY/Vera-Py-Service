@@ -44,7 +44,7 @@ class PlugboardClient(BaseModel):
                 event_class = self.events[message["event"]]
                 event_instance = event_class(**message)
                 # Cast to ActionRunner since we know the discovered classes inherit from ActionRunner
-                await event_instance.run(self, websocket)  # type: ignore
+                await event_instance.run(self, websocket) # type: ignore
             except JSONDecodeError:
                 print("Invalid JSON")
             except KeyError:

@@ -8,7 +8,7 @@ from schemas.service import Service
 class ServiceTest(TestCase):
     """Test cases for Service action_schema class."""
 
-    service: Service  # type: ignore
+    service: Service # type: ignore
 
     @override
     def setUp(self) -> None:
@@ -153,7 +153,7 @@ class ServiceTest(TestCase):
         from pydantic import ValidationError
         with self.assertRaises(ValidationError):
             Service(
-                id = "not_an_int",  # type: ignore
+                id = "not_an_int", # type: ignore
                 name = "Test Service",
                 inserted_at = datetime.now(),
                 updated_at = datetime.now()

@@ -10,7 +10,7 @@ from core.action_schema import ActionSchema
 class ActionSchemaTest(TestCase):
     """Test cases for ActionSchema base class."""
 
-    test_action_class: type[ActionSchema]  # type: ignore
+    test_action_class: type[ActionSchema] # type: ignore
 
     @override
     def setUp(self) -> None:
@@ -125,7 +125,7 @@ class ActionSchemaTest(TestCase):
 
             # This should raise TypeError due to abstract method
             # We need to suppress the linter warning since this is intentional
-            IncompleteAction(name = "test")  # type: ignore
+            IncompleteAction(name = "test") # type: ignore
 
     def test_nested_action_schema_fields(self) -> None:
         """
