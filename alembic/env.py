@@ -1,7 +1,4 @@
 import importlib
-import os
-import sys
-from logging.config import fileConfig
 from os import getenv
 from pathlib import Path
 

@@ -6,7 +6,7 @@ from core.database import base
 class Foo(base):
     __tablename__ = "foo"
 
-    bar: int = Column(
+    bar = Column(
         Integer,
         primary_key = True,
     )
