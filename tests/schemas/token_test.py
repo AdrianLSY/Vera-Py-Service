@@ -22,8 +22,6 @@ class TokenTest(TestCase):
         Returns:
             None: This test does not return a value.
         """
-        from core.action_schema import ActionSchema
-
         # Token is always a subclass of ActionSchema by design
         self.assertIsInstance(Token, type)
 
@@ -221,7 +219,7 @@ class TokenTest(TestCase):
         # Invalid data should raise ValidationError
         from pydantic import ValidationError
         with self.assertRaises(ValidationError):
-            Token(id = "not_an_int")  # id should be int or None
+            Token(id = "not_an_int")  # type: ignore  # id should be int or None
 
     def test_token_json_serialization(self) -> None:
         """

@@ -41,11 +41,12 @@ class PlugboardClientTest(TestCase):
         Returns:
             None: This test does not return a value.
         """
+        from datetime import datetime
         service = Service(
             id = 1,
             name = "Test Service",
-            inserted_at = "2023-01-01T00:00:00",
-            updated_at = "2023-01-01T00:00:00"
+            inserted_at = datetime.fromisoformat("2023-01-01T00:00:00"),
+            updated_at = datetime.fromisoformat("2023-01-01T00:00:00")
         )
         token = Token(
             id = 1,
@@ -72,8 +73,6 @@ class PlugboardClientTest(TestCase):
         Returns:
             None: This test does not return a value.
         """
-        from pydantic import BaseModel
-
         # PlugboardClient is always a subclass of BaseModel by design
         self.assertIsInstance(PlugboardClient, type)
 
@@ -359,7 +358,7 @@ class PlugboardClientTest(TestCase):
         # Invalid data should raise ValidationError
         from pydantic import ValidationError
         with self.assertRaises(ValidationError):
-            PlugboardClient(num_consumers = "not_an_int")
+            PlugboardClient(num_consumers = "not_an_int")  # type: ignore
 
     def test_plugboard_client_json_serialization(self) -> None:
         """
