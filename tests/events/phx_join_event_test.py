@@ -172,7 +172,7 @@ class PhxJoinEventTest(TestCase):
         # Invalid data should raise ValidationError
         from pydantic import ValidationError
         with self.assertRaises(ValidationError):
-            PhxJoinEvent(topic = 123)  # topic should be string
+            PhxJoinEvent(topic = 123)  # type: ignore  # topic should be string
 
     def test_phx_join_event_json_serialization(self) -> None:
         """
@@ -356,7 +356,7 @@ class PhxJoinEventTest(TestCase):
         # Should raise ValidationError for invalid event value
         from pydantic import ValidationError
         with self.assertRaises(ValidationError):
-            PhxJoinEvent(topic = "test", event = "invalid_event")
+            PhxJoinEvent(topic = "test", event = "invalid_event")  # type: ignore
 
 
 if __name__ == "__main__":

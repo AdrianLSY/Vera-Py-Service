@@ -1,7 +1,7 @@
 from json import dumps
 from typing import TYPE_CHECKING, Any, Literal, override
 
-from pydantic import Field
+from pydantic import Field, ValidationError
 from websockets import ClientConnection
 
 from core.action_response import ActionResponse
@@ -57,11 +57,19 @@ class RequestEvent(ActionRunner):
     @override
     async def run(self, client: "PlugboardClient", websocket: ClientConnection) -> ActionResponse:
         try:
-            response = await client.actions[self.payload.action](**self.payload.fields).run(client, websocket)
+            action_class = client.actions[self.payload.action]
+            action_instance = action_class(**self.payload.fields)
+            # Cast to ActionRunner since we know the discovered classes inherit from ActionRunner
+            response = await action_instance.run(client, websocket)  # type: ignore
         except KeyError:
             response = ActionResponse(
                 status_code = 404,
                 message = f"Unknown action: {self.payload.action}",
+            )
+        except ValidationError:
+            response = ActionResponse(
+                status_code = 400,
+                message = "Invalid request. Please check the required fields and try again."
             )
         except Exception:
             response = ActionResponse(
@@ -73,9 +81,9 @@ class RequestEvent(ActionRunner):
                 {
                     "topic": self.topic,
                     "event": "response",
-                    "payload": response.model_dump(),
+                    "payload": response.model_dump(),  # type: ignore
                     "ref": self.payload.response_ref
                 }
             )
         )
-        return response
+        return response  # type: ignore
